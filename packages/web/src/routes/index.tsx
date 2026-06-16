@@ -18,13 +18,13 @@ export function AppRoutes() {
       </Route>
 
       {/* Protected app routes */}
-      <Route element={<ProtectedRoute />}>
-        <Route element={<AppLayout />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/settings" element={<Settings />} />
-        </Route>
+      {/* <Route element={<ProtectedRoute />}> */}
+      <Route element={<AppLayout />}>
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/settings" element={<Settings />} />
       </Route>
+      {/* </Route> */}
 
       <Route path="*" element={<NotFound />} />
     </Routes>
