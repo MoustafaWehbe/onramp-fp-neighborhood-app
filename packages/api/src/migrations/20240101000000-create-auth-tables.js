@@ -22,11 +22,6 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: false,
       },
-      role: {
-        type: Sequelize.ENUM("admin", "user"),
-        defaultValue: "user",
-        allowNull: false,
-      },
       email_verified: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
