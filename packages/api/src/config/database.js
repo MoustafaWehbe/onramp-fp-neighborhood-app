@@ -24,7 +24,6 @@ const dbUrl =
   process.env.DATABASE_URL ||
   "postgresql://postgres:postgres@localhost:5432/starter_kit";
 
-console.log("DB URL BEING USED:", dbUrl);
 
 module.exports = {
   development: parseDbUrl(dbUrl),
