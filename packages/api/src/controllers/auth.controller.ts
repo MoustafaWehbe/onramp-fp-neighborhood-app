@@ -49,6 +49,8 @@ export const authController = {
     }
   },
 
+  
+
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { user, accessToken, refreshToken } = await authService.login({
@@ -102,4 +104,32 @@ export const authController = {
       next(err);
     }
   },
+
+  async googleCallback(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const code = req.query.code as string;
+
+    if (!code) {
+      res.status(400).json({ message: "Missing Google auth code" });
+      return;
+    }
+
+    const { user, accessToken, refreshToken } =
+      await authService.loginWithGoogle({
+        code,
+        userAgent: req.headers["user-agent"],
+        ipAddress: req.ip,
+      });
+
+    setAuthCookies(res, accessToken, refreshToken);
+
+    res.redirect(`${process.env.WEB_URL}/auth/success`);
+  } catch (error) {
+    next(error);
+  }
+},
 };

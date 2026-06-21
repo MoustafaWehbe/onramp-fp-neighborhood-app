@@ -18,5 +18,11 @@
   "engines": {
     "node": ">=20"
   },
-  "packageManager": "npm@10.8.0"
+  "packageManager": "npm@10.8.0",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "google-auth-library": "^10.7.0",
+    "jsonwebtoken": "^9.0.3"
+  }
 }

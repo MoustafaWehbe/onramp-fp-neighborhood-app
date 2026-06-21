@@ -1,21 +1,22 @@
 import { Model, DataTypes, type Sequelize, type Optional } from "sequelize";
-import type { UserRole } from "../../auth/types";
 
 export interface UserAttributes {
   id: string;
   email: string;
-  passwordHash: string;
+  passwordHash?: string | null;
   name: string;
-  role: UserRole;
+ googleId?: string | null;
+  avatarUrl?: string | null;
   emailVerified: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export interface UserCreationAttributes extends Optional<
-  UserAttributes,
-  "id" | "role" | "emailVerified"
-> {}
+export interface UserCreationAttributes
+  extends Optional<
+    UserAttributes,
+    "id" | "passwordHash" | "googleId" | "avatarUrl" | "emailVerified"
+  > {}
 
 export class User
   extends Model<UserAttributes, UserCreationAttributes>
@@ -23,9 +24,10 @@ export class User
 {
   declare id: string;
   declare email: string;
-  declare passwordHash: string;
+  declare passwordHash: string | null;
   declare name: string;
-  declare role: UserRole;
+ declare googleId: string | null;
+  declare avatarUrl: string | null;
   declare emailVerified: boolean;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
@@ -46,16 +48,20 @@ export class User
         },
         passwordHash: {
           type: DataTypes.STRING,
-          allowNull: false,
+          allowNull: true,
         },
         name: {
           type: DataTypes.STRING(255),
           allowNull: false,
         },
-        role: {
-          type: DataTypes.ENUM("admin", "user"),
-          defaultValue: "user",
+        googleId: {
+          type: DataTypes.STRING,
           allowNull: false,
+          unique: true,
+        },
+        avatarUrl: {
+          type: DataTypes.TEXT,
+          allowNull: true,
         },
         emailVerified: {
           type: DataTypes.BOOLEAN,
@@ -70,6 +76,7 @@ export class User
         underscored: true,
       },
     );
+
     return User;
   }
 }

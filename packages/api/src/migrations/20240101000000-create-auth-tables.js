@@ -16,16 +16,20 @@ module.exports = {
       },
       password_hash: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       name: {
         type: Sequelize.STRING(255),
         allowNull: false,
       },
-      role: {
-        type: Sequelize.ENUM("admin", "user"),
-        defaultValue: "user",
+      google_id: {
+        type: Sequelize.STRING,
         allowNull: false,
+        unique: true,
+      },
+      avatar_url: {
+        type: Sequelize.TEXT,
+        allowNull: true,
       },
       email_verified: {
         type: Sequelize.BOOLEAN,

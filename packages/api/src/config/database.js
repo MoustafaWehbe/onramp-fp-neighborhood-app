@@ -1,7 +1,7 @@
 "use strict";
 
 require("dotenv").config({
-  path: require("path").resolve(__dirname, "../../../.env"),
+  path: require("path").resolve(__dirname, "../../../../.env"),
 });
 
 const url = require("url");
@@ -24,6 +24,7 @@ const dbUrl =
   process.env.DATABASE_URL ||
   "postgresql://postgres:postgres@localhost:5432/starter_kit";
 
+
 module.exports = {
   development: parseDbUrl(dbUrl),
   test: parseDbUrl(
@@ -32,3 +33,4 @@ module.exports = {
   ),
   production: parseDbUrl(process.env.DATABASE_URL || dbUrl),
 };
+
