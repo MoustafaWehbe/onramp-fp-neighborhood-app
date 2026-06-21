@@ -7,6 +7,9 @@ import { Register } from "../pages/auth/Register";
 import { Dashboard } from "../pages/dashboard/Dashboard";
 import { Settings } from "../pages/dashboard/Settings";
 import { NotFound } from "../pages/NotFound";
+
+import { ReportIssue } from "../pages/issues/ReportIssue";
+import { WorkerWorkspace } from "../pages/issues/WorkerWorkspace";
 import { Feed } from "../pages/feed/Feed";
 import { IssuePage } from "../pages/feed/IssuePage";
 
@@ -26,10 +29,11 @@ export function AppRoutes() {
         <Route path="/issue/:id" element={<IssuePage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/report-issue" element={<ReportIssue />} />
+        <Route path="/worker-workspace" element={<WorkerWorkspace />} />
       </Route>
       {/* </Route> */}
 
-      
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
