@@ -1,9 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
-import { Button } from "../../components/ui/button";
 import {
   Select,
   SelectContent,
@@ -12,35 +10,13 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { CATEGORIES, NEIGHBORHOODS, type Category } from "../../lib/mock-data";
-import { useApp } from "../../lib/app-state";
 
 export function ReportIssue() {
-  const navigate = useNavigate();
-  const { addIssue, user } = useApp();
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<Category | "">("");
   const [neighborhood, setNeighborhood] = useState("");
   const [address, setAddress] = useState("");
-
-  function handleSubmit() {
-    if (!title || !description || !category || !neighborhood || !address) {
-      alert("Please fill in all fields.");
-      return;
-    }
-
-    const newIssue = addIssue({
-      title,
-      description,
-      category,
-      neighborhood,
-      address,
-      reporter: user,
-    });
-
-    navigate(`/issue/${newIssue.id}`);
-  }
 
   return (
     <div className="p-6 max-w-xl space-y-4">
@@ -108,8 +84,6 @@ export function ReportIssue() {
           placeholder="e.g. Elm St & 4th Ave"
         />
       </div>
-
-      <Button onClick={handleSubmit}>Submit report</Button>
     </div>
   );
 }
