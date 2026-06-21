@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link } from "react-router-dom";
 import { ArrowUp, MapPin, MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -20,7 +20,9 @@ export function IssueCard({ issue }: { issue: Issue }) {
           aria-label="Upvote"
         >
           <ArrowUp className="h-4 w-4 text-ocean-teal" />
-          <span className="font-display text-sm font-semibold text-foreground">{issue.upvotes}</span>
+          <span className="font-display text-sm font-semibold text-foreground">
+            {issue.upvotes}
+          </span>
         </button>
 
         <div className="min-w-0 flex-1">
@@ -28,29 +30,36 @@ export function IssueCard({ issue }: { issue: Issue }) {
             <Badge variant="outline" className={statusColor(issue.status)}>
               {issue.status}
             </Badge>
-            <Badge variant="secondary" className="bg-muted/70 text-foreground/70">
+            <Badge
+              variant="secondary"
+              className="bg-muted/70 text-foreground/70"
+            >
               {issue.category}
             </Badge>
             <span className="text-xs text-muted-foreground">{issue.id}</span>
           </div>
 
           <Link
-            to="/issue/$id"
-            params={{ id: issue.id }}
+            to={`/issue/${issue.id}`}
             className="mt-2 block font-display text-lg font-semibold text-foreground hover:text-ocean-mid"
           >
             {issue.title}
           </Link>
-          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{issue.description}</p>
+          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+            {issue.description}
+          </p>
 
           <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
-              <MapPin className="h-3.5 w-3.5" /> {issue.neighborhood} · {issue.address}
+              <MapPin className="h-3.5 w-3.5" /> {issue.neighborhood} ·{" "}
+              {issue.address}
             </span>
             <span className="flex items-center gap-1">
               <MessageSquare className="h-3.5 w-3.5" /> {issue.comments.length}
             </span>
-            <span>by {issue.reporter} · {timeAgo(issue.createdAt)}</span>
+            <span>
+              by {issue.reporter} · {timeAgo(issue.createdAt)}
+            </span>
           </div>
         </div>
       </div>
