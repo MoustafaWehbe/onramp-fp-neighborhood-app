@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useApp } from "../../lib/app-state";
 import { Badge } from "../../components/ui/badge";
 import { statusColor } from "../../lib/mock-data";
+import { CommentSection } from "../../components/CommentSection";
 
 export function IssuePage() {
   const { id } = useParams();
@@ -27,6 +28,7 @@ export function IssuePage() {
           {issue.neighborhood} · {issue.address} · reported by {issue.reporter}
         </p>
       </div>
+      <CommentSection issue={issue} />
     </div>
   );
 }
