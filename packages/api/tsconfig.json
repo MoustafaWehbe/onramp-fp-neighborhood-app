@@ -1,7 +1,7 @@
 {
   "extends": "../shared/config/tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "./",
+    // "rootDir": "./",
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {

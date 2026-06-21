@@ -5,7 +5,7 @@ export interface UserAttributes {
   email: string;
   passwordHash?: string | null;
   name: string;
-  googleId: string;
+ googleId?: string | null;
   avatarUrl?: string | null;
   emailVerified: boolean;
   createdAt?: Date;
@@ -15,7 +15,7 @@ export interface UserAttributes {
 export interface UserCreationAttributes
   extends Optional<
     UserAttributes,
-    "id" | "passwordHash" | "avatarUrl" | "emailVerified"
+    "id" | "passwordHash" | "googleId" | "avatarUrl" | "emailVerified"
   > {}
 
 export class User
@@ -26,7 +26,7 @@ export class User
   declare email: string;
   declare passwordHash: string | null;
   declare name: string;
-  declare googleId: string;
+ declare googleId: string | null;
   declare avatarUrl: string | null;
   declare emailVerified: boolean;
   declare readonly createdAt: Date;
