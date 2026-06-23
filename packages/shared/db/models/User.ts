@@ -1,12 +1,12 @@
 import { Model, DataTypes, type Sequelize, type Optional } from "sequelize";
-import type { UserRole } from "../../auth/types";
+import type { AuthRole } from "../../auth/types";
 
 export interface UserAttributes {
   id: string;
   email: string;
   passwordHash: string;
   name: string;
-  role: UserRole;
+  role: AuthRole;
   emailVerified: boolean;
   createdAt?: Date;
   updatedAt?: Date;
@@ -25,7 +25,7 @@ export class User
   declare email: string;
   declare passwordHash: string;
   declare name: string;
-  declare role: UserRole;
+  declare role: AuthRole;
   declare emailVerified: boolean;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
@@ -68,7 +68,7 @@ export class User
         tableName: "users",
         timestamps: true,
         underscored: true,
-      },
+      }
     );
     return User;
   }

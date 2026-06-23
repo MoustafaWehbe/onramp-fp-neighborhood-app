@@ -7,6 +7,8 @@ import { Role } from "./Role";
 import { Permission } from "./Permission";
 import { UserRole } from "./UserRole";
 import { RolePermission } from "./RolePermission";
+import { Neighborhood } from "./Neighborhood";
+import { Category } from "./Category";
 
 export {
   User,
@@ -16,6 +18,8 @@ export {
   Permission,
   UserRole,
   RolePermission,
+  Neighborhood,
+  Category,
 };
 
 export function initModels(sequelize: Sequelize): void {
@@ -26,6 +30,8 @@ export function initModels(sequelize: Sequelize): void {
   Permission.initModel(sequelize);
   UserRole.initModel(sequelize);
   RolePermission.initModel(sequelize);
+  Neighborhood.initModel(sequelize);
+  Category.initModel(sequelize);
 
   // Existing auth associations
   User.hasMany(Session, { foreignKey: "userId", as: "sessions" });
