@@ -1,5 +1,7 @@
 import { Sequelize } from "sequelize";
-import { initModels } from "@starter-kit/shared";
+import { initModels, User } from "@starter-kit/shared";
+import { Issue } from "../models/Issue";
+import { Comment } from "../models/Comment";
 
 let sequelize: Sequelize | null = null;
 
@@ -22,5 +24,24 @@ export async function initializeDatabase(): Promise<void> {
   const db = getDatabase();
   await db.authenticate();
   initModels(db);
+
+  // Register app models
+  Issue.initModel(db);
+  Comment.initModel(db);
+
+  // Issue associations
+  User.hasMany(Issue, { foreignKey: "submittedById", as: "submittedIssues" });
+  Issue.belongsTo(User, { foreignKey: "submittedById", as: "submittedBy" });
+
+  User.hasMany(Issue, { foreignKey: "assignedToId", as: "assignedIssues" });
+  Issue.belongsTo(User, { foreignKey: "assignedToId", as: "assignedTo" });
+
+  // Comment associations
+  Issue.hasMany(Comment, { foreignKey: "issueId", as: "comments" });
+  Comment.belongsTo(Issue, { foreignKey: "issueId", as: "issue" });
+
+  User.hasMany(Comment, { foreignKey: "authorId", as: "comments" });
+  Comment.belongsTo(User, { foreignKey: "authorId", as: "author" });
+
   console.info("Database connection established");
 }
