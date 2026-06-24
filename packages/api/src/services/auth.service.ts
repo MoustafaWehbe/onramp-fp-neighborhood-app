@@ -5,8 +5,9 @@ import {
   generateTokenPair,
   verifyRefreshToken,
 } from "@starter-kit/shared";
-import { User, Session, RefreshToken } from "../models";
+import { User, Session, RefreshToken, Role, UserRole } from "../models";
 import { createError } from "../middleware/error-handler";
+import type { AuthRole } from "@starter-kit/shared";
 
 interface RegisterInput {
   email: string;
@@ -22,6 +23,45 @@ interface LoginInput {
 }
 
 export class AuthService {
+  private async assignDefaultResidentRole(userId: string) {
+    const residentRole = await Role.findOne({ where: { name: "resident" } });
+
+    if (!residentRole) {
+      throw createError("Default resident role not found", 500);
+    }
+
+    await UserRole.findOrCreate({
+      where: {
+        userId,
+        roleId: residentRole.id,
+      },
+      defaults: {
+        userId,
+        roleId: residentRole.id,
+      },
+    });
+  }
+
+  private async getUserRoles(userId: string): Promise<AuthRole[]> {
+    const user = await User.findByPk(userId, {
+      include: [{ model: Role, as: "roles" }],
+    });
+
+    if (!user) {
+      throw createError("User not found", 404);
+    }
+
+    const roles = ((user as unknown as { roles?: Role[] }).roles ?? []).map(
+      (role) => role.name as AuthRole
+    );
+
+    return roles;
+  }
+
+  private getPrimaryRole(roles: AuthRole[]): AuthRole {
+    return roles[0] ?? "resident";
+  }
+
   async register(input: RegisterInput) {
     const existing = await User.findOne({ where: { email: input.email } });
     if (existing) {
@@ -35,7 +75,17 @@ export class AuthService {
       name: input.name,
     });
 
-    return { id: user.id, email: user.email, name: user.name, role: user.role };
+    await this.assignDefaultResidentRole(user.id);
+    const roles = await this.getUserRoles(user.id);
+    const role = this.getPrimaryRole(roles);
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role,
+      roles,
+    };
   }
 
   async login(input: LoginInput) {
@@ -49,17 +99,20 @@ export class AuthService {
       throw createError("Invalid credentials", 401);
     }
 
+    const roles = await this.getUserRoles(user.id);
+    const role = this.getPrimaryRole(roles);
+
     const session = await Session.create({
       userId: user.id,
       userAgent: input.userAgent,
       ipAddress: input.ipAddress,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1_000), // 7 days
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1_000),
     });
 
     const tokens = generateTokenPair({
       userId: user.id,
       email: user.email,
-      role: user.role,
+      role,
       sessionId: session.id,
     });
 
@@ -80,7 +133,8 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name,
-        role: user.role,
+        role,
+        roles,
       },
       ...tokens,
     };
@@ -101,16 +155,18 @@ export class AuthService {
     const user = await User.findByPk(payload.userId);
     if (!user) throw createError("User not found", 404);
 
-    // Rotate token
     await stored.update({ revokedAt: new Date() });
 
     const session = await Session.findByPk(stored.sessionId);
     if (!session) throw createError("Session not found", 401);
 
+    const roles = await this.getUserRoles(user.id);
+    const role = this.getPrimaryRole(roles);
+
     const tokens = generateTokenPair({
       userId: user.id,
       email: user.email,
-      role: user.role,
+      role,
       sessionId: session.id,
     });
 
@@ -118,6 +174,7 @@ export class AuthService {
       .createHash("sha256")
       .update(tokens.refreshToken)
       .digest("hex");
+
     await RefreshToken.create({
       userId: user.id,
       sessionId: session.id,
@@ -131,17 +188,30 @@ export class AuthService {
   async logout(sessionId: string) {
     await RefreshToken.update(
       { revokedAt: new Date() },
-      { where: { sessionId } },
+      { where: { sessionId } }
     );
     await Session.destroy({ where: { id: sessionId } });
   }
 
   async getProfile(userId: string) {
     const user = await User.findByPk(userId, {
-      attributes: ["id", "email", "name", "role", "emailVerified", "createdAt"],
+      attributes: ["id", "email", "name", "emailVerified", "createdAt"],
     });
+
     if (!user) throw createError("User not found", 404);
-    return user;
+
+    const roles = await this.getUserRoles(user.id);
+    const role = this.getPrimaryRole(roles);
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt,
+      role,
+      roles,
+    };
   }
 }
 

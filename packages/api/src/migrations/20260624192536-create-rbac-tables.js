@@ -1,110 +1,116 @@
 "use strict";
 
-/** @type {import("sequelize-cli").Migration} */
+const now = new Date();
+
 module.exports = {
-  async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("roles", {
-      id: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.literal("gen_random_uuid()"),
-        allowNull: false,
-        primaryKey: true,
+  async up(queryInterface) {
+    await queryInterface.bulkInsert("permissions", [
+      {
+        name: "issues:create",
+        description: "Create issues",
+        created_at: now,
+        updated_at: now,
       },
-      name: {
-        type: Sequelize.STRING(100),
-        allowNull: false,
-        unique: true,
+      {
+        name: "issues:read",
+        description: "Read issues",
+        created_at: now,
+        updated_at: now,
       },
-      description: {
-        type: Sequelize.TEXT,
-        allowNull: true,
+      {
+        name: "issues:update-own",
+        description: "Update own issues",
+        created_at: now,
+        updated_at: now,
       },
-      created_at: {
-        type: Sequelize.DATE,
-        allowNull: false,
+      {
+        name: "issues:update-any",
+        description: "Update any issue",
+        created_at: now,
+        updated_at: now,
       },
-      updated_at: {
-        type: Sequelize.DATE,
-        allowNull: false,
+      {
+        name: "issues:delete",
+        description: "Delete issues",
+        created_at: now,
+        updated_at: now,
       },
-    });
-
-    await queryInterface.createTable("permissions", {
-      id: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.literal("gen_random_uuid()"),
-        allowNull: false,
-        primaryKey: true,
+      {
+        name: "comments:create",
+        description: "Create comments",
+        created_at: now,
+        updated_at: now,
       },
-      name: {
-        type: Sequelize.STRING(100),
-        allowNull: false,
-        unique: true,
+      {
+        name: "comments:read",
+        description: "Read comments",
+        created_at: now,
+        updated_at: now,
       },
-      description: {
-        type: Sequelize.TEXT,
-        allowNull: true,
+      {
+        name: "comments:delete-own",
+        description: "Delete own comments",
+        created_at: now,
+        updated_at: now,
       },
-      created_at: {
-        type: Sequelize.DATE,
-        allowNull: false,
+      {
+        name: "comments:delete-any",
+        description: "Delete any comment",
+        created_at: now,
+        updated_at: now,
       },
-      updated_at: {
-        type: Sequelize.DATE,
-        allowNull: false,
+      {
+        name: "admin:users:read",
+        description: "Read users",
+        created_at: now,
+        updated_at: now,
       },
-    });
-
-    await queryInterface.createTable("user_roles", {
-      user_id: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        primaryKey: true,
-        references: { model: "users", key: "id" },
-        onDelete: "CASCADE",
+      {
+        name: "admin:users:update-role",
+        description: "Manage user roles",
+        created_at: now,
+        updated_at: now,
       },
-      role_id: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        primaryKey: true,
-        references: { model: "roles", key: "id" },
-        onDelete: "CASCADE",
+      {
+        name: "admin:categories:create",
+        description: "Create categories",
+        created_at: now,
+        updated_at: now,
       },
-      assigned_by: {
-        type: Sequelize.UUID,
-        allowNull: true,
-        references: { model: "users", key: "id" },
-        onDelete: "SET NULL",
+      {
+        name: "admin:categories:update",
+        description: "Update categories",
+        created_at: now,
+        updated_at: now,
       },
-      assigned_at: {
-        type: Sequelize.DATE,
-        allowNull: false,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+      {
+        name: "admin:categories:delete",
+        description: "Delete categories",
+        created_at: now,
+        updated_at: now,
       },
-    });
-
-    await queryInterface.createTable("role_permissions", {
-      role_id: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        primaryKey: true,
-        references: { model: "roles", key: "id" },
-        onDelete: "CASCADE",
+      {
+        name: "admin:neighborhoods:create",
+        description: "Create neighborhoods",
+        created_at: now,
+        updated_at: now,
       },
-      permission_id: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        primaryKey: true,
-        references: { model: "permissions", key: "id" },
-        onDelete: "CASCADE",
+      {
+        name: "admin:neighborhoods:update",
+        description: "Update neighborhoods",
+        created_at: now,
+        updated_at: now,
       },
-    });
+      {
+        name: "admin:neighborhoods:delete",
+        description: "Delete neighborhoods",
+        created_at: now,
+        updated_at: now,
+      },
+    ]);
   },
 
   async down(queryInterface) {
-    await queryInterface.dropTable("role_permissions");
-    await queryInterface.dropTable("user_roles");
-    await queryInterface.dropTable("permissions");
-    await queryInterface.dropTable("roles");
+    await queryInterface.bulkDelete("permissions", null, {});
   },
 };

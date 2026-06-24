@@ -1,14 +1,15 @@
 import path from "path";
 import dotenv from "dotenv";
-dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-import { app } from "./app";
-import { initializeDatabase } from "./src/lib/db";
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const PORT = parseInt(process.env.PORT ?? "3000", 10);
 
 async function start(): Promise<void> {
   try {
+    const { app } = await import("./app");
+    const { initializeDatabase } = await import("./src/lib/db");
+
     await initializeDatabase();
 
     app.listen(PORT, () => {

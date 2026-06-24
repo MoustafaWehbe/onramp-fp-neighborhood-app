@@ -1,4 +1,4 @@
-export type AuthRole = "resident" | "city_worker" | "platform_admin";
+export type AuthRole = "resident" | "moderator" | "admin" | "platform_admin";
 
 export interface JwtPayload {
   userId: string;

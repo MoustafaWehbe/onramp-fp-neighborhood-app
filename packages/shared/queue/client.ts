@@ -6,12 +6,14 @@ import {
   type EmbeddingsJobData,
 } from "./types";
 
-const REDIS_ENABLED = process.env.REDIS !== "false";
+function isRedisEnabled(): boolean {
+  return process.env.REDIS !== "false";
+}
 
 let redisConnection: IORedis | null = null;
 
 export function getRedisConnection(): IORedis {
-  if (!REDIS_ENABLED) {
+  if (!isRedisEnabled()) {
     throw new Error("Redis is disabled");
   }
 
@@ -27,7 +29,7 @@ export function getRedisConnection(): IORedis {
 }
 
 function createQueue<T>(name: string): Queue<T> | null {
-  if (!REDIS_ENABLED) {
+  if (!isRedisEnabled()) {
     return null;
   }
 
@@ -43,6 +45,7 @@ function createQueue<T>(name: string): Queue<T> | null {
 }
 
 export const emailQueue = createQueue<EmailJobData>(QUEUE_NAMES.EMAIL);
+
 export const embeddingsQueue = createQueue<EmbeddingsJobData>(
   QUEUE_NAMES.EMBEDDINGS
 );
