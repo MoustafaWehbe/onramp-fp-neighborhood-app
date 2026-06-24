@@ -4,6 +4,11 @@ import { processEmailJob } from "../jobs/email.job";
 import { processEmbeddingsJob } from "../jobs/embeddings.job";
 
 export function createWorkers(): Worker[] {
+  if (process.env.REDIS === "false" || process.env.REDIS_ENABLED === "false") {
+    console.info("Redis disabled, workers not started");
+    return [];
+  }
+
   const connection = getRedisConnection();
 
   const emailWorker = new Worker(QUEUE_NAMES.EMAIL, processEmailJob, {
@@ -17,7 +22,7 @@ export function createWorkers(): Worker[] {
     {
       connection,
       concurrency: 5,
-    },
+    }
   );
 
   const workers = [emailWorker, embeddingsWorker];
