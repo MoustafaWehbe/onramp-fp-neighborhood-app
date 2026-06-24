@@ -1,13 +1,14 @@
 import crypto from "crypto";
+import { OAuth2Client } from "google-auth-library";
 import {
   hashPassword,
   verifyPassword,
   generateTokenPair,
   verifyRefreshToken,
 } from "@starter-kit/shared";
+import type { AuthRole } from "@starter-kit/shared";
 import { User, Session, RefreshToken, Role, UserRole } from "../models";
 import { createError } from "../middleware/error-handler";
-import type { AuthRole } from "@starter-kit/shared";
 
 interface RegisterInput {
   email: string;
@@ -18,6 +19,12 @@ interface RegisterInput {
 interface LoginInput {
   email: string;
   password: string;
+  userAgent?: string;
+  ipAddress?: string;
+}
+
+interface GoogleLoginInput {
+  code: string;
   userAgent?: string;
   ipAddress?: string;
 }
@@ -76,6 +83,7 @@ export class AuthService {
     });
 
     await this.assignDefaultResidentRole(user.id);
+
     const roles = await this.getUserRoles(user.id);
     const role = this.getPrimaryRole(roles);
 
@@ -137,6 +145,92 @@ export class AuthService {
         roles,
       },
       ...tokens,
+    };
+  }
+
+  async loginWithGoogle(input: GoogleLoginInput) {
+    const googleClient = new OAuth2Client(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      process.env.GOOGLE_CALLBACK_URL
+    );
+
+    const { tokens } = await googleClient.getToken(input.code);
+
+    if (!tokens.id_token) {
+      throw createError("Google did not return an ID token", 401);
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: tokens.id_token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const googleUser = ticket.getPayload();
+
+    if (!googleUser?.email) {
+      throw createError("Google account has no email", 401);
+    }
+
+    let user = await User.findOne({
+      where: { email: googleUser.email },
+    });
+
+    if (!user) {
+      user = await User.create({
+        email: googleUser.email,
+        name: googleUser.name ?? googleUser.email,
+        googleId: googleUser.sub,
+        emailVerified: googleUser.email_verified ?? false,
+        passwordHash: null,
+      });
+
+      await this.assignDefaultResidentRole(user.id);
+    } else if (!user.googleId) {
+      await user.update({
+        googleId: googleUser.sub,
+        emailVerified: googleUser.email_verified ?? user.emailVerified,
+      });
+    }
+
+    const roles = await this.getUserRoles(user.id);
+    const role = this.getPrimaryRole(roles);
+
+    const session = await Session.create({
+      userId: user.id,
+      userAgent: input.userAgent,
+      ipAddress: input.ipAddress,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1_000),
+    });
+
+    const authTokens = generateTokenPair({
+      userId: user.id,
+      email: user.email,
+      role,
+      sessionId: session.id,
+    });
+
+    const tokenHash = crypto
+      .createHash("sha256")
+      .update(authTokens.refreshToken)
+      .digest("hex");
+
+    await RefreshToken.create({
+      userId: user.id,
+      sessionId: session.id,
+      tokenHash,
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1_000),
+    });
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role,
+        roles,
+      },
+      ...authTokens,
     };
   }
 
