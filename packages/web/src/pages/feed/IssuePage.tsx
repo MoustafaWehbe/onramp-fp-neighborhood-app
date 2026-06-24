@@ -60,7 +60,10 @@ export function IssuePage() {
         <div className="border border-border rounded-lg p-4 space-y-3">
           <h3 className="font-semibold">Update Status</h3>
 
-          <Select value={newStatus} onValueChange={(v) => setNewStatus(v as Status)}>
+          <Select
+            value={newStatus}
+            onValueChange={(v) => setNewStatus(v as Status)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select new status" />
             </SelectTrigger>

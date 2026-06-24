@@ -31,7 +31,7 @@ import {
 
 const residentNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
-  { title: "Report an Issue", url: "/report", icon: PlusCircle },
+  { title: "Report an Issue", url: "/report-issue", icon: PlusCircle },
   { title: "My Reports", url: "/my-reports", icon: FileText },
 ];
 
@@ -83,7 +83,8 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={pathname === item.url}
-                    tooltip={item.title}>
+                    tooltip={item.title}
+                  >
                     <Link to={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
