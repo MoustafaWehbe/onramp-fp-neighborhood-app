@@ -9,8 +9,10 @@ export interface CommentAttributes {
   updatedAt?: Date;
 }
 
-export interface CommentCreationAttributes
-  extends Optional<CommentAttributes, "id"> {}
+export interface CommentCreationAttributes extends Optional<
+  CommentAttributes,
+  "id"
+> {}
 
 export class Comment
   extends Model<CommentAttributes, CommentCreationAttributes>
@@ -49,7 +51,7 @@ export class Comment
         tableName: "comments",
         timestamps: true,
         underscored: true,
-      }
+      },
     );
     return Comment;
   }

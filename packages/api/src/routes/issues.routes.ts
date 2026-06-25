@@ -27,6 +27,6 @@ router.patch(
 // Comments routes
 // GET /api/issues/:id/comments — anyone logged in can view comments for an issue
 router.get("/:id/comments", commentsController.getByIssueId);
-router.post("/:id/comments", commentsController.create);
+router.post("/:id/comments", authorize("user", "authority"), commentsController.create);
 
 export default router;

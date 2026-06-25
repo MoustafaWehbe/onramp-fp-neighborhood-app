@@ -43,7 +43,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: { model: "users", key: "id" },
-        onDelete: "CASCADE",      //if a user gets deleted, all their issues get deleted too automatically.
+        onDelete: "CASCADE", //if a user gets deleted, all their issues get deleted too automatically.
       },
       ai_routing_note: {
         type: Sequelize.TEXT,
@@ -56,5 +56,8 @@ module.exports = {
 
   async down(queryInterface) {
     await queryInterface.dropTable("issues");
+    await queryInterface.sequelize.query(
+      'DROP TYPE IF EXISTS "enum_issues_status";',
+    );
   },
 };

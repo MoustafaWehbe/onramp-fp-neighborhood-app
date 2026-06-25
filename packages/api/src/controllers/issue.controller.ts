@@ -1,6 +1,8 @@
 import type { Request, Response, NextFunction } from "express";
 import { issuesService } from "../services/issues.service";
 
+const parsedPage = Math.max(1, parseInt(page as string) || 1);
+const parsedLimit = Math.min(100, Math.max(1, parseInt(limit as string) || 20));
 export const issuesController = {
   async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -9,8 +11,8 @@ export const issuesController = {
         neighborhood: neighborhood as string,
         status: status as string,
         category: category as string,
-        page: page ? Number(page) : 1,
-        limit: limit ? Number(limit) : 20,
+        page: parsedPage,
+        limit: parsedLimit,
       });
       res.status(200).json({ data: result });
     } catch (err) {

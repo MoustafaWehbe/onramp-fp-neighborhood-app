@@ -17,9 +17,9 @@ module.exports = {
       },
       changed_by_id: {
         type: Sequelize.UUID,
-        allowNull: false,
+        allowNull: true,
         references: { model: "users", key: "id" },
-        onDelete: "CASCADE",
+        onDelete: "SET NULL",
       },
       from_status: {
         type: Sequelize.STRING,

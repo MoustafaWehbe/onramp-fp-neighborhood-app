@@ -4,7 +4,7 @@
     "rootDir": "./",
     "outDir": "./dist",
     "baseUrl": ".",
-    "types": ["jest"],
+    "types": ["jest", "node"],
     "paths": {
       "@starter-kit/shared": ["../shared/src/index.ts"],
       "@starter-kit/shared/*": ["../shared/src/*"]

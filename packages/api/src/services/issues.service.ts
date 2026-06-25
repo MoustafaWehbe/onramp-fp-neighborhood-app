@@ -41,6 +41,7 @@ export const issuesService = {
       offset,
       order: [["createdAt", "DESC"]],
       include: [{ model: ProgressLog, as: "progressLogs" }],
+      distinct: true,
     }); //limit and offset handle pagination — if there are 100 issues and you want page 2 with 20 per page, offset = 20 means "skip the first 20."
 
     return { issues: rows, total: count, page, limit };
@@ -76,30 +77,35 @@ export const issuesService = {
     note: string,
     changedById: string,
   ) {
-    const issue = await Issue.findByPk(issueId);
-    if (!issue) return null;
+    return Issue.sequelize!.transaction(async (transaction) => {
+      const issue = await Issue.findByPk(issueId, {
+        transaction,
+        lock: transaction.LOCK.UPDATE,
+      });
+      if (!issue) return null;
 
-    const currentIndex = VALID_STATUSES.indexOf(issue.status as Status);
-    const newIndex = VALID_STATUSES.indexOf(newStatus as Status);
+      if (!isValidTransition(issue.status as Status, newStatus)) {
+        throw new Error(
+          `Invalid status transition. Must go from ${issue.status} to ${getNextStatus(issue.status as Status)}`,
+        );
+      }
 
-    if (!isValidTransition(issue.status as Status, newStatus)) {
-      throw new Error(
-        `Invalid status transition. Must go from ${issue.status} to ${getNextStatus(issue.status as Status)}`,
+      const fromStatus = issue.status;
+      issue.status = newStatus as Status;
+      await issue.save({ transaction });
+
+      await ProgressLog.create(
+        {
+          issueId,
+          changedById,
+          fromStatus,
+          toStatus: newStatus,
+          note,
+        },
+        { transaction },
       );
-    }
 
-    const fromStatus = issue.status;
-    issue.status = newStatus as Status;
-    await issue.save();
-
-    await ProgressLog.create({
-      issueId,
-      changedById,
-      fromStatus,
-      toStatus: newStatus,
-      note,
+      return issue;
     });
-
-    return issue;
   },
 };

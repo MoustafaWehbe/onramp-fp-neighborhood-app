@@ -30,5 +30,4 @@ export function initModels(sequelize: Sequelize): void {
   ProgressLog.belongsTo(Issue, { foreignKey: "issueId", as: "issue" });
   Issue.hasMany(Comment, { foreignKey: "issueId", as: "comments" });
   Comment.belongsTo(Issue, { foreignKey: "issueId", as: "issue" });
-  
 }

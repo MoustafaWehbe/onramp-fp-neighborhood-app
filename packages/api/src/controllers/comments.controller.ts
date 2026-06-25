@@ -5,11 +5,11 @@ export const commentsController = {
   async getByIssueId(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const comments = await commentsService.getByIssueId(
-        req.params.id as string
+        req.params.id as string,
       );
       res.status(200).json({ data: comments });
     } catch (err) {
@@ -17,11 +17,7 @@ export const commentsController = {
     }
   },
 
-  async create(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const comment = await commentsService.create({
         issueId: req.params.id as string,
