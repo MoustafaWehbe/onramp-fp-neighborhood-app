@@ -65,7 +65,13 @@ export const issuesService = {
     aiRoutingNote?: string;
   }) {
     const issue = await Issue.create({
-      ...data,
+      title: data.title,
+      description: data.description,
+      category: data.category,
+      neighborhood: data.neighborhood,
+      address: data.address,
+      reportedById: data.reportedById,
+      aiRoutingNote: data.aiRoutingNote,
       status: "Reported",
     });
     return issue;
