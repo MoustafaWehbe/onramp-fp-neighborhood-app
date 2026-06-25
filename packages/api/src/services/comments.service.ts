@@ -15,8 +15,10 @@ export const commentsService = {
     authorId: string;
     body: string;
     requestingUserId: string;
+    requestingUserRole: string;
   }) {
-    const { issueId, authorId, body, requestingUserId } = data;
+    const { issueId, authorId, body, requestingUserId, requestingUserRole } =
+      data;
 
     // find the issue first
     const issue = await Issue.findByPk(issueId);
@@ -24,7 +26,7 @@ export const commentsService = {
 
     // residents can only comment on their own issues
     if (
-      authorId === requestingUserId &&
+      requestingUserRole === "user" &&
       issue.reportedById !== requestingUserId
     ) {
       throw new Error("Residents can only comment on their own issues");

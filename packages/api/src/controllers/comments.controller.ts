@@ -19,11 +19,18 @@ export const commentsController = {
 
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
+      const body =
+        typeof req.body?.body === "string" ? req.body.body.trim() : "";
+      if (!body) {
+        res.status(400).json({ error: "Comment body is required" });
+        return;
+      }
       const comment = await commentsService.create({
         issueId: req.params.id as string,
         authorId: req.user!.userId,
-        body: req.body.body,
+        body,
         requestingUserId: req.user!.userId,
+        requestingUserRole: req.user!.role,
       });
       res.status(201).json({ data: comment });
     } catch (err) {

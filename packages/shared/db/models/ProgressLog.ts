@@ -3,7 +3,7 @@ import { Model, DataTypes, type Sequelize, type Optional } from "sequelize";
 export interface ProgressLogAttributes {
   id: string;
   issueId: string;
-  changedById: string;
+  changedById: string | null;
   fromStatus: string;
   toStatus: string;
   note: string;
@@ -22,7 +22,7 @@ export class ProgressLog
 {
   declare id: string;
   declare issueId: string;
-  declare changedById: string;
+  declare changedById: string | null;
   declare fromStatus: string;
   declare toStatus: string;
   declare note: string;
@@ -43,7 +43,7 @@ export class ProgressLog
         },
         changedById: {
           type: DataTypes.UUID,
-          allowNull: false,
+          allowNull: true,
         },
         fromStatus: {
           type: DataTypes.STRING,

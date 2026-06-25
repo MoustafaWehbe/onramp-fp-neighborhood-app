@@ -1,12 +1,15 @@
 import type { Request, Response, NextFunction } from "express";
 import { issuesService } from "../services/issues.service";
 
-const parsedPage = Math.max(1, parseInt(page as string) || 1);
-const parsedLimit = Math.min(100, Math.max(1, parseInt(limit as string) || 20));
 export const issuesController = {
   async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { neighborhood, status, category, page, limit } = req.query;
+      const parsedPage = Math.max(1, parseInt(page as string) || 1);
+      const parsedLimit = Math.min(
+        100,
+        Math.max(1, parseInt(limit as string) || 20),
+      );
       const result = await issuesService.getAll({
         neighborhood: neighborhood as string,
         status: status as string,
