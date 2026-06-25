@@ -24,7 +24,7 @@ module.exports = {
       },
       google_id: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true,
       },
       avatar_url: {

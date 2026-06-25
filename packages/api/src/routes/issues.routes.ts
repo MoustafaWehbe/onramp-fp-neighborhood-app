@@ -2,7 +2,7 @@ import { Router } from "express";
 import { issuesController } from "../controllers/issue.controller";
 import { authenticate } from "../middleware/authenticate";
 import { authorize } from "../middleware/authorize";
-
+import { commentsController } from "../controllers/comments.controller";
 const router = Router();
 
 // All issue routes require login
@@ -23,5 +23,10 @@ router.patch(
   authorize("authority"),
   issuesController.updateStatus,
 );
+
+// Comments routes
+// GET /api/issues/:id/comments — anyone logged in can view comments for an issue
+router.get("/:id/comments", commentsController.getByIssueId);
+router.post("/:id/comments", commentsController.create);
 
 export default router;

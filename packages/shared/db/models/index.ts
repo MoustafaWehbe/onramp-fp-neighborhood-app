@@ -4,7 +4,8 @@ import { Session } from "./Session";
 import { RefreshToken } from "./RefreshToken";
 import { Issue } from "./Issue";
 import { ProgressLog } from "./ProgressLog";
-export { User, Session, RefreshToken, Issue, ProgressLog };
+import { Comment } from "./Comment";
+export { User, Session, RefreshToken, Issue, ProgressLog, Comment };
 
 export function initModels(sequelize: Sequelize): void {
   User.initModel(sequelize);
@@ -12,6 +13,7 @@ export function initModels(sequelize: Sequelize): void {
   RefreshToken.initModel(sequelize);
   Issue.initModel(sequelize);
   ProgressLog.initModel(sequelize);
+  Comment.initModel(sequelize);
   // Associations
   User.hasMany(Session, { foreignKey: "userId", as: "sessions" });
   Session.belongsTo(User, { foreignKey: "userId", as: "user" });
@@ -26,4 +28,7 @@ export function initModels(sequelize: Sequelize): void {
   RefreshToken.belongsTo(Session, { foreignKey: "sessionId", as: "session" });
   Issue.hasMany(ProgressLog, { foreignKey: "issueId", as: "progressLogs" });
   ProgressLog.belongsTo(Issue, { foreignKey: "issueId", as: "issue" });
+  Issue.hasMany(Comment, { foreignKey: "issueId", as: "comments" });
+  Comment.belongsTo(Issue, { foreignKey: "issueId", as: "issue" });
+  
 }
