@@ -6,7 +6,7 @@ import {
   ClipboardList,
   Shield,
   MapPin,
-  Waves,
+  Settings,
 } from "lucide-react";
 import {
   Sidebar,
@@ -31,18 +31,22 @@ import {
 
 const residentNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
-  { title: "Report an Issue", url: "/report", icon: PlusCircle },
+  { title: "Report an Issue", url: "/report-issue", icon: PlusCircle },
   { title: "My Reports", url: "/my-reports", icon: FileText },
+  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 const authorityNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
-  { title: "Work Queue", url: "/queue", icon: ClipboardList },
+  { title: "Worker Workspace", url: "/worker-workspace", icon: ClipboardList },
+
+  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 const adminNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
-  { title: "Admin Console", url: "/admin", icon: Shield },
+
+  { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -60,7 +64,7 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border">
         <div className="flex items-center gap-2.5 px-2 py-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-soft">
-            <Waves className="h-5 w-5" />
+            <MapPin className="h-5 w-5" />
           </div>
           <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
             <span className="font-display text-base font-semibold text-sidebar-foreground">
@@ -83,7 +87,8 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={pathname === item.url}
-                    tooltip={item.title}>
+                    tooltip={item.title}
+                  >
                     <Link to={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>

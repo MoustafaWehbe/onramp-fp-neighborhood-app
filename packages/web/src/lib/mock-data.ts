@@ -46,6 +46,7 @@ export const NEIGHBORHOODS = [
   "Verdun",
   "Dekwaneh",
   "Jounieh",
+  "Tyre",
 ];
 
 export const CATEGORIES: Category[] = [
