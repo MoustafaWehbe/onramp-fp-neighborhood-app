@@ -24,12 +24,8 @@ module.exports = {
       },
       google_id: {
         type: Sequelize.STRING,
-        allowNull: false,
-        unique: true,
-      },
-      avatar_url: {
-        type: Sequelize.TEXT,
         allowNull: true,
+        unique: true,
       },
       email_verified: {
         type: Sequelize.BOOLEAN,
@@ -39,7 +35,6 @@ module.exports = {
       created_at: { type: Sequelize.DATE, allowNull: false },
       updated_at: { type: Sequelize.DATE, allowNull: false },
     });
-
     await queryInterface.createTable("sessions", {
       id: {
         type: Sequelize.UUID,
