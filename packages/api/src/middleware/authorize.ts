@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
-import type { UserRole } from "@starter-kit/shared";
+import type { AuthRole } from "@starter-kit/shared";
 
-export function authorize(...roles: UserRole[]) {
+export function authorize(...roles: AuthRole[]) {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
       res.status(401).json({ error: "Unauthenticated" });

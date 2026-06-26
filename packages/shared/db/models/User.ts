@@ -3,7 +3,7 @@ import { Model, DataTypes, type Sequelize, type Optional } from "sequelize";
 export interface UserAttributes {
   id: string;
   email: string;
-  passwordHash?: string | null;
+  passwordHash: string | null;
   name: string;
   googleId?: string | null;
   avatarUrl?: string | null;
@@ -12,10 +12,11 @@ export interface UserAttributes {
   updatedAt?: Date;
 }
 
-export interface UserCreationAttributes extends Optional<
-  UserAttributes,
-  "id" | "passwordHash" | "googleId" | "avatarUrl" | "emailVerified"
-> {}
+export interface UserCreationAttributes
+  extends Optional<
+    UserAttributes,
+    "id" | "passwordHash" | "googleId" | "avatarUrl" | "emailVerified"
+  > {}
 
 export class User
   extends Model<UserAttributes, UserCreationAttributes>
@@ -57,10 +58,12 @@ export class User
           type: DataTypes.STRING,
           allowNull: true,
           unique: true,
+          field: "google_id",
         },
         avatarUrl: {
           type: DataTypes.TEXT,
           allowNull: true,
+          field: "avatar_url",
         },
         emailVerified: {
           type: DataTypes.BOOLEAN,
