@@ -16,11 +16,16 @@ module.exports = {
       },
       password_hash: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       name: {
         type: Sequelize.STRING(255),
         allowNull: false,
+      },
+      google_id: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        unique: true,
       },
       email_verified: {
         type: Sequelize.BOOLEAN,
@@ -30,7 +35,6 @@ module.exports = {
       created_at: { type: Sequelize.DATE, allowNull: false },
       updated_at: { type: Sequelize.DATE, allowNull: false },
     });
-
     await queryInterface.createTable("sessions", {
       id: {
         type: Sequelize.UUID,
