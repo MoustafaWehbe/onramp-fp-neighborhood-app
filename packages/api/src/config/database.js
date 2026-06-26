@@ -24,7 +24,6 @@ const dbUrl =
   process.env.DATABASE_URL ||
   "postgresql://postgres:postgres@localhost:5432/starter_kit";
 
-
 module.exports = {
   development: parseDbUrl(dbUrl),
   test: parseDbUrl(
@@ -33,4 +32,3 @@ module.exports = {
   ),
   production: parseDbUrl(process.env.DATABASE_URL || dbUrl),
 };
-

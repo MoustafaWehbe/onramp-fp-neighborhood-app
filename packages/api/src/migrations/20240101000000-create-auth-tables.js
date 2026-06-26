@@ -27,6 +27,10 @@ module.exports = {
         allowNull: true,
         unique: true,
       },
+      avatar_url: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
       email_verified: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
@@ -35,6 +39,7 @@ module.exports = {
       created_at: { type: Sequelize.DATE, allowNull: false },
       updated_at: { type: Sequelize.DATE, allowNull: false },
     });
+
     await queryInterface.createTable("sessions", {
       id: {
         type: Sequelize.UUID,

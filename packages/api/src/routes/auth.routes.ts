@@ -12,20 +12,21 @@ router.post(
   "/register",
   authRateLimiter,
   validate(registerSchema),
-  authController.register
+  authController.register,
 );
 
 router.post(
   "/login",
   authRateLimiter,
   validate(loginSchema),
-  authController.login
+  authController.login,
 );
 
 router.post("/refresh", authController.refresh);
 router.post("/logout", authenticate, authController.logout);
 router.get("/me", authenticate, authController.me);
 
+// Google OAuth
 router.get("/google", authRateLimiter, (_req, res) => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
