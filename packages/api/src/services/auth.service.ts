@@ -102,6 +102,10 @@ export class AuthService {
       throw createError("Invalid credentials", 401);
     }
 
+    if (!user.passwordHash) {
+      throw createError("Invalid credentials", 401);
+    }
+
     const valid = await verifyPassword(input.password, user.passwordHash);
     if (!valid) {
       throw createError("Invalid credentials", 401);
@@ -121,6 +125,7 @@ export class AuthService {
       userId: user.id,
       email: user.email,
       role,
+      roles,
       sessionId: session.id,
     });
 
@@ -207,9 +212,9 @@ export class AuthService {
       userId: user.id,
       email: user.email,
       role,
+      roles,
       sessionId: session.id,
     });
-
     const tokenHash = crypto
       .createHash("sha256")
       .update(authTokens.refreshToken)
@@ -261,9 +266,9 @@ export class AuthService {
       userId: user.id,
       email: user.email,
       role,
+      roles,
       sessionId: session.id,
     });
-
     const newHash = crypto
       .createHash("sha256")
       .update(tokens.refreshToken)
