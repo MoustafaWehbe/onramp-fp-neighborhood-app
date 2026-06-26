@@ -2,14 +2,18 @@ import type { Sequelize } from "sequelize";
 import { User } from "./User";
 import { Session } from "./Session";
 import { RefreshToken } from "./RefreshToken";
-
-export { User, Session, RefreshToken };
+import { Issue } from "./Issue";
+import { ProgressLog } from "./ProgressLog";
+import { Comment } from "./Comment";
+export { User, Session, RefreshToken, Issue, ProgressLog, Comment };
 
 export function initModels(sequelize: Sequelize): void {
   User.initModel(sequelize);
   Session.initModel(sequelize);
   RefreshToken.initModel(sequelize);
-
+  Issue.initModel(sequelize);
+  ProgressLog.initModel(sequelize);
+  Comment.initModel(sequelize);
   // Associations
   User.hasMany(Session, { foreignKey: "userId", as: "sessions" });
   Session.belongsTo(User, { foreignKey: "userId", as: "user" });
@@ -22,4 +26,8 @@ export function initModels(sequelize: Sequelize): void {
     as: "refreshTokens",
   });
   RefreshToken.belongsTo(Session, { foreignKey: "sessionId", as: "session" });
+  Issue.hasMany(ProgressLog, { foreignKey: "issueId", as: "progressLogs" });
+  ProgressLog.belongsTo(Issue, { foreignKey: "issueId", as: "issue" });
+  Issue.hasMany(Comment, { foreignKey: "issueId", as: "comments" });
+  Comment.belongsTo(Issue, { foreignKey: "issueId", as: "issue" });
 }

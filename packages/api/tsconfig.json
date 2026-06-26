@@ -1,14 +1,15 @@
 {
   "extends": "../shared/config/tsconfig.base.json",
   "compilerOptions": {
-    // "rootDir": "./",
+    "rootDir": "./",
     "outDir": "./dist",
     "baseUrl": ".",
+    "types": ["jest", "node"],
     "paths": {
       "@starter-kit/shared": ["../shared/src/index.ts"],
       "@starter-kit/shared/*": ["../shared/src/*"]
     }
   },
-  "include": ["src/**/*", "app.ts", "server.ts"],
-  "exclude": ["node_modules", "dist", "tests"]
+  "include": ["src/**/*", "app.ts", "server.ts", "tests/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
