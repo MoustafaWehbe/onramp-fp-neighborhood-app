@@ -189,14 +189,14 @@ export class AuthService {
         emailVerified: googleUser.email_verified ?? false,
         passwordHash: null,
       });
-
-      await this.assignDefaultResidentRole(user.id);
     } else if (!user.googleId) {
       await user.update({
         googleId: googleUser.sub,
         emailVerified: googleUser.email_verified ?? user.emailVerified,
       });
     }
+
+    await this.assignDefaultResidentRole(user.id);
 
     const roles = await this.getUserRoles(user.id);
     const role = this.getPrimaryRole(roles);

@@ -1,0 +1,12 @@
+import type { Sequelize } from "sequelize";
+import { User } from "./User";
+import { Session } from "./Session";
+import { RefreshToken } from "./RefreshToken";
+import { Role } from "./Role";
+import { Permission } from "./Permission";
+import { UserRole } from "./UserRole";
+import { RolePermission } from "./RolePermission";
+import { Neighborhood } from "./Neighborhood";
+import { Category } from "./Category";
+export { User, Session, RefreshToken, Role, Permission, UserRole, RolePermission, Neighborhood, Category, };
+export declare function initModels(sequelize: Sequelize): void;

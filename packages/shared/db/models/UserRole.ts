@@ -42,7 +42,9 @@ export class UserRole
       {
         sequelize,
         tableName: "user_roles",
-        timestamps: false,
+        timestamps: true,
+        createdAt: "created_at",
+        updatedAt: false,
         underscored: true,
       }
     );
