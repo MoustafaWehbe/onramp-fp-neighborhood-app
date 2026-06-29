@@ -12,7 +12,7 @@ function TopBar() {
   const pathname = location.pathname;
 
   const title =
-    pathname === "/"
+    pathname === "/" || pathname === "/dashboard"
       ? "Community Feed"
       : pathname === "/report"
         ? "Report an Issue"
@@ -33,7 +33,6 @@ function TopBar() {
       <h1 className="font-display text-base font-semibold tracking-tight">
         {title}
       </h1>
-
       <div className="ml-auto flex items-center gap-2">
         <Badge variant="outline">{role} view</Badge>
       </div>

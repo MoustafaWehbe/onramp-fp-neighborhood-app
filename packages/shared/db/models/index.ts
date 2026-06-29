@@ -9,6 +9,9 @@ import { UserRole } from "./UserRole";
 import { RolePermission } from "./RolePermission";
 import { Neighborhood } from "./Neighborhood";
 import { Category } from "./Category";
+import { Issue } from "./Issue";
+import { ProgressLog } from "./ProgressLog";
+import { Comment } from "./Comment";
 
 export {
   User,
@@ -20,6 +23,9 @@ export {
   RolePermission,
   Neighborhood,
   Category,
+  Issue,
+  ProgressLog,
+  Comment,
 };
 
 export function initModels(sequelize: Sequelize): void {
@@ -32,8 +38,10 @@ export function initModels(sequelize: Sequelize): void {
   RolePermission.initModel(sequelize);
   Neighborhood.initModel(sequelize);
   Category.initModel(sequelize);
+  Issue.initModel(sequelize);
+  ProgressLog.initModel(sequelize);
+  Comment.initModel(sequelize);
 
-  // Existing auth associations
   User.hasMany(Session, { foreignKey: "userId", as: "sessions" });
   Session.belongsTo(User, { foreignKey: "userId", as: "user" });
 
@@ -46,7 +54,6 @@ export function initModels(sequelize: Sequelize): void {
   });
   RefreshToken.belongsTo(Session, { foreignKey: "sessionId", as: "session" });
 
-  // RBAC associations
   User.belongsToMany(Role, {
     through: UserRole,
     foreignKey: "userId",
@@ -74,4 +81,10 @@ export function initModels(sequelize: Sequelize): void {
     otherKey: "roleId",
     as: "roles",
   });
+
+  Issue.hasMany(ProgressLog, { foreignKey: "issueId", as: "progressLogs" });
+  ProgressLog.belongsTo(Issue, { foreignKey: "issueId", as: "issue" });
+
+  Issue.hasMany(Comment, { foreignKey: "issueId", as: "comments" });
+  Comment.belongsTo(Issue, { foreignKey: "issueId", as: "issue" });
 }

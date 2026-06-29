@@ -11,6 +11,7 @@ import { NotFound } from "../pages/NotFound";
 import { ReportIssue } from "../pages/issues/ReportIssue";
 import { WorkerWorkspace } from "../pages/issues/WorkerWorkspace";
 import { Feed } from "../pages/feed/Feed";
+import { MyReports } from "../pages/feed/MyReports";
 import { IssuePage } from "../pages/feed/IssuePage";
 
 export function AppRoutes() {
@@ -30,6 +31,7 @@ export function AppRoutes() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/report-issue" element={<ReportIssue />} />
+        <Route path="/my-reports" element={<MyReports />} />
         <Route path="/worker-workspace" element={<WorkerWorkspace />} />
       </Route>
       {/* </Route> */}

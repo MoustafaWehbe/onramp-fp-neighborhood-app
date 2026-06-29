@@ -31,6 +31,9 @@ export function IssuePage() {
   const isCityWorker = user?.role === "Authority";
 
   function handleUpdateStatus() {
+    if (!issue) {
+      return;
+    }
     if (!newStatus || !note.trim()) {
       alert("Please select a status and add a note.");
       return;
@@ -60,7 +63,10 @@ export function IssuePage() {
         <div className="border border-border rounded-lg p-4 space-y-3">
           <h3 className="font-semibold">Update Status</h3>
 
-          <Select value={newStatus} onValueChange={(v) => setNewStatus(v as Status)}>
+          <Select
+            value={newStatus}
+            onValueChange={(v) => setNewStatus(v as Status)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select new status" />
             </SelectTrigger>
