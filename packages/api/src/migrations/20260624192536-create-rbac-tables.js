@@ -1,12 +1,13 @@
 "use strict";
 
-/** @type {import('sequelize-cli').Migration} */
+/** @type {import("sequelize-cli").Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("roles", {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal("gen_random_uuid()"),
+        allowNull: false,
         primaryKey: true,
       },
       name: {
@@ -32,10 +33,11 @@ module.exports = {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal("gen_random_uuid()"),
+        allowNull: false,
         primaryKey: true,
       },
       name: {
-        type: Sequelize.STRING(150),
+        type: Sequelize.STRING(100),
         allowNull: false,
         unique: true,
       },
@@ -57,24 +59,32 @@ module.exports = {
       user_id: {
         type: Sequelize.UUID,
         allowNull: false,
-        references: {
-          model: "users",
-          key: "id",
-        },
+        primaryKey: true,
+        references: { model: "users", key: "id" },
         onDelete: "CASCADE",
       },
       role_id: {
         type: Sequelize.UUID,
         allowNull: false,
-        references: {
-          model: "roles",
-          key: "id",
-        },
+        primaryKey: true,
+        references: { model: "roles", key: "id" },
         onDelete: "CASCADE",
+      },
+      assigned_by: {
+        type: Sequelize.UUID,
+        allowNull: true,
+        references: { model: "users", key: "id" },
+        onDelete: "SET NULL",
+      },
+      assigned_at: {
+        type: Sequelize.DATE,
+        allowNull: false,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
     });
 
@@ -82,37 +92,22 @@ module.exports = {
       role_id: {
         type: Sequelize.UUID,
         allowNull: false,
-        references: {
-          model: "roles",
-          key: "id",
-        },
+        primaryKey: true,
+        references: { model: "roles", key: "id" },
         onDelete: "CASCADE",
       },
       permission_id: {
         type: Sequelize.UUID,
         allowNull: false,
-        references: {
-          model: "permissions",
-          key: "id",
-        },
+        primaryKey: true,
+        references: { model: "permissions", key: "id" },
         onDelete: "CASCADE",
       },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
       },
-    });
-
-    await queryInterface.addConstraint("user_roles", {
-      fields: ["user_id", "role_id"],
-      type: "primary key",
-      name: "pk_user_roles",
-    });
-
-    await queryInterface.addConstraint("role_permissions", {
-      fields: ["role_id", "permission_id"],
-      type: "primary key",
-      name: "pk_role_permissions",
     });
   },
 

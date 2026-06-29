@@ -6,24 +6,38 @@ import {
   type EmbeddingsJobData,
 } from "./types";
 
+function isRedisEnabled(): boolean {
+  return process.env.REDIS !== "false";
+}
+
 let redisConnection: IORedis | null = null;
 
 export function getRedisConnection(): IORedis {
+  if (!isRedisEnabled()) {
+    throw new Error("Redis is disabled");
+  }
+
   if (!redisConnection) {
     const url = process.env.REDIS_URL ?? "redis://localhost:6379";
+
     redisConnection = new IORedis(url, {
-      maxRetriesPerRequest: null, // required by BullMQ
+      maxRetriesPerRequest: null,
     });
   }
+
   return redisConnection;
 }
 
-function createQueue<T>(name: string): Queue<T> {
+function createQueue<T>(name: string): Queue<T> | null {
+  if (!isRedisEnabled()) {
+    return null;
+  }
+
   return new Queue<T>(name, {
     connection: getRedisConnection(),
     defaultJobOptions: {
       attempts: 3,
-      backoff: { type: "exponential", delay: 1_000 },
+      backoff: { type: "exponential", delay: 1000 },
       removeOnComplete: { count: 100 },
       removeOnFail: { count: 500 },
     },
@@ -31,6 +45,7 @@ function createQueue<T>(name: string): Queue<T> {
 }
 
 export const emailQueue = createQueue<EmailJobData>(QUEUE_NAMES.EMAIL);
+
 export const embeddingsQueue = createQueue<EmbeddingsJobData>(
-  QUEUE_NAMES.EMBEDDINGS,
+  QUEUE_NAMES.EMBEDDINGS
 );

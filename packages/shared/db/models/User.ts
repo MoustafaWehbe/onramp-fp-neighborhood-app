@@ -3,7 +3,7 @@ import { Model, DataTypes, type Sequelize, type Optional } from "sequelize";
 export interface UserAttributes {
   id: string;
   email: string;
-  passwordHash?: string | null;
+  passwordHash: string | null;
   name: string;
   googleId?: string | null;
   avatarUrl?: string | null;
@@ -57,10 +57,12 @@ export class User
           type: DataTypes.STRING,
           allowNull: true,
           unique: true,
+          field: "google_id",
         },
         avatarUrl: {
           type: DataTypes.TEXT,
           allowNull: true,
+          field: "avatar_url",
         },
         emailVerified: {
           type: DataTypes.BOOLEAN,
@@ -73,7 +75,7 @@ export class User
         tableName: "users",
         timestamps: true,
         underscored: true,
-      },
+      }
     );
 
     return User;

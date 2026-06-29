@@ -1,3 +1,9 @@
-export { User } from "./User";
-export { Session } from "./Session";
-export { RefreshToken } from "./RefreshToken";
+export {
+  User,
+  Session,
+  RefreshToken,
+  Role,
+  Permission,
+  UserRole,
+  RolePermission,
+} from "@starter-kit/shared";
