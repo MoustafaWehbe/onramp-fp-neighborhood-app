@@ -12,7 +12,7 @@ const REFRESH_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
 function setAuthCookies(
   res: Response,
   accessToken: string,
-  refreshToken: string,
+  refreshToken: string
 ): void {
   res.cookie(ACCESS_COOKIE, accessToken, {
     httpOnly: true,
@@ -39,7 +39,7 @@ export const authController = {
   async register(
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ): Promise<void> {
     try {
       const user = await authService.register(req.body);
@@ -48,8 +48,6 @@ export const authController = {
       next(err);
     }
   },
-
-  
 
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -68,7 +66,7 @@ export const authController = {
   async refresh(
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ): Promise<void> {
     try {
       const refreshToken = req.cookies?.[REFRESH_COOKIE] as string | undefined;
@@ -106,30 +104,29 @@ export const authController = {
   },
 
   async googleCallback(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
-  try {
-    const code = req.query.code as string;
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const code = req.query.code as string;
 
-    if (!code) {
-      res.status(400).json({ message: "Missing Google auth code" });
-      return;
-    }
+      if (!code) {
+        res.status(400).json({ message: "Missing Google auth code" });
+        return;
+      }
 
-    const { user, accessToken, refreshToken } =
-      await authService.loginWithGoogle({
+      const { accessToken, refreshToken } = await authService.loginWithGoogle({
         code,
         userAgent: req.headers["user-agent"],
         ipAddress: req.ip,
       });
 
-    setAuthCookies(res, accessToken, refreshToken);
+      setAuthCookies(res, accessToken, refreshToken);
 
-    res.redirect(`${process.env.WEB_URL}/auth/success`);
-  } catch (error) {
-    next(error);
-  }
-},
+      res.redirect(`${process.env.WEB_URL ?? "http://localhost:5173"}/`);
+    } catch (error) {
+      next(error);
+    }
+  },
 };

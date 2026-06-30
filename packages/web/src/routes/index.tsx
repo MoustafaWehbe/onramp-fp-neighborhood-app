@@ -24,15 +24,16 @@ export function AppRoutes() {
       </Route>
 
       {/* Protected app routes */}
-      {/* <Route element={<ProtectedRoute />}> */}
-      <Route element={<AppLayout />}>
-        <Route path="/" element={<Feed />} />
-        <Route path="/issue/:id" element={<IssuePage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/report-issue" element={<ReportIssue />} />
-        <Route path="/my-reports" element={<MyReports />} />
-        <Route path="/worker-workspace" element={<WorkerWorkspace />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Feed />} />
+          <Route path="/issue/:id" element={<IssuePage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/report-issue" element={<ReportIssue />} />
+          <Route path="/my-reports" element={<MyReports />} />
+          <Route path="/worker-workspace" element={<WorkerWorkspace />} />
+        </Route>
       </Route>
       {/* </Route> */}
 
