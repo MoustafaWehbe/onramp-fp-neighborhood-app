@@ -53,9 +53,8 @@ export function Register() {
   };
 
   const handleGoogleRegister = () => {
-    window.location.href = "http://localhost:3000/api/auth/google";
+    window.location.href = "/api/auth/google";
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-4">
       <div className="w-full max-w-md">
@@ -93,8 +92,7 @@ export function Register() {
               <div className="space-y-1.5">
                 <Label
                   htmlFor="name"
-                  className="text-sm font-medium text-white"
-                >
+                  className="text-sm font-medium text-white">
                   Full name
                 </Label>
                 <div className="relative">
@@ -117,8 +115,7 @@ export function Register() {
               <div className="space-y-1.5">
                 <Label
                   htmlFor="email"
-                  className="text-sm font-medium text-white"
-                >
+                  className="text-sm font-medium text-white">
                   Email address
                 </Label>
                 <div className="relative">
@@ -142,8 +139,7 @@ export function Register() {
               <div className="space-y-1.5">
                 <Label
                   htmlFor="password"
-                  className="text-sm font-medium text-white"
-                >
+                  className="text-sm font-medium text-white">
                   Password
                 </Label>
                 <div className="relative">
@@ -171,8 +167,7 @@ export function Register() {
               <Button
                 type="submit"
                 className="w-full h-10 font-medium"
-                disabled={isSubmitting}
-              >
+                disabled={isSubmitting}>
                 {isSubmitting ? "Creating account…" : "Create account"}
               </Button>
 
@@ -191,13 +186,11 @@ export function Register() {
                 type="button"
                 variant="outline"
                 className="w-full h-10 gap-2 font-medium"
-                onClick={handleGoogleRegister}
-              >
+                onClick={handleGoogleRegister}>
                 <svg
                   viewBox="0 0 24 24"
                   className="h-4 w-4"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
+                  xmlns="http://www.w3.org/2000/svg">
                   <path
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                     fill="#4285F4"
@@ -222,8 +215,7 @@ export function Register() {
                 Already have an account?{" "}
                 <Link
                   to="/login"
-                  className="text-primary hover:underline font-medium text-blue-300"
-                >
+                  className="text-primary hover:underline font-medium text-blue-300">
                   Sign in
                 </Link>
               </p>

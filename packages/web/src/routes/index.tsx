@@ -13,6 +13,7 @@ import { WorkerWorkspace } from "../pages/issues/WorkerWorkspace";
 import { Feed } from "../pages/feed/Feed";
 import { MyReports } from "../pages/feed/MyReports";
 import { IssuePage } from "../pages/feed/IssuePage";
+import { AdminUsers } from "@/pages/admin/AdminUsers";
 
 export function AppRoutes() {
   return (
@@ -24,15 +25,17 @@ export function AppRoutes() {
       </Route>
 
       {/* Protected app routes */}
-      {/* <Route element={<ProtectedRoute />}> */}
-      <Route element={<AppLayout />}>
-        <Route path="/" element={<Feed />} />
-        <Route path="/issue/:id" element={<IssuePage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/report-issue" element={<ReportIssue />} />
-        <Route path="/my-reports" element={<MyReports />} />
-        <Route path="/worker-workspace" element={<WorkerWorkspace />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/" element={<Feed />} />
+          <Route path="/issue/:id" element={<IssuePage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/report-issue" element={<ReportIssue />} />
+          <Route path="/my-reports" element={<MyReports />} />
+          <Route path="/worker-workspace" element={<WorkerWorkspace />} />
+        </Route>
       </Route>
       {/* </Route> */}
 

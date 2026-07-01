@@ -4,7 +4,6 @@ import {
   PlusCircle,
   FileText,
   ClipboardList,
-  Shield,
   MapPin,
   Settings,
 } from "lucide-react";
@@ -20,14 +19,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { useApp, type Role } from "@/lib/app-state";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useAuth } from "@/hooks/useAuth";
 
 const residentNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
@@ -39,25 +31,43 @@ const residentNav = [
 const authorityNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
   { title: "Worker Workspace", url: "/worker-workspace", icon: ClipboardList },
-
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 const adminNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
-
+  { title: "Worker Workspace", url: "/worker-workspace", icon: ClipboardList },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
+function formatRole(role?: string) {
+  if (!role) return "Resident";
+
+  switch (role) {
+    case "resident":
+      return "Resident";
+    case "moderator":
+    case "admin":
+      return "Authority Representative";
+    case "platform_admin":
+      return "Platform Admin";
+    default:
+      return role;
+  }
+}
+
 export function AppSidebar() {
-  const { role, setRole, user } = useApp();
+  const { user } = useAuth();
   const { pathname } = useLocation();
+
+  const role = user?.role ?? "resident";
+
   const nav =
-    role === "Resident"
+    role === "resident"
       ? residentNav
-      : role === "Authority"
-        ? authorityNav
-        : adminNav;
+      : role === "platform_admin"
+        ? adminNav
+        : authorityNav;
 
   return (
     <Sidebar collapsible="icon">
@@ -66,6 +76,7 @@ export function AppSidebar() {
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground shadow-soft">
             <MapPin className="h-5 w-5" />
           </div>
+
           <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
             <span className="font-display text-base font-semibold text-sidebar-foreground">
               CivicWave
@@ -87,8 +98,7 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={pathname === item.url}
-                    tooltip={item.title}
-                  >
+                    tooltip={item.title}>
                     <Link to={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
@@ -116,19 +126,18 @@ export function AppSidebar() {
           <div className="px-2 text-xs text-sidebar-foreground/60">
             Signed in as
           </div>
+
           <div className="px-2 text-sm font-medium text-sidebar-foreground">
-            {user}
+            {user?.name ?? "Unknown user"}
           </div>
-          <Select value={role} onValueChange={(v) => setRole(v as Role)}>
-            <SelectTrigger className="bg-sidebar-accent/60 border-sidebar-border text-sidebar-foreground">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Resident">Resident</SelectItem>
-              <SelectItem value="Authority">Authority Rep</SelectItem>
-              <SelectItem value="Admin">Platform Admin</SelectItem>
-            </SelectContent>
-          </Select>
+
+          <div className="px-2 text-xs text-sidebar-foreground/60 truncate">
+            {user?.email}
+          </div>
+
+          <div className="mx-2 rounded-md bg-sidebar-accent/70 px-2 py-1 text-xs font-medium text-sidebar-foreground">
+            {formatRole(role)}
+          </div>
         </div>
       </SidebarFooter>
     </Sidebar>
