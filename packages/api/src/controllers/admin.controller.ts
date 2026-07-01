@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { Role, User, UserRole } from "../models";
+import { adminService } from "../services/admin.service";
 
 const assignableRoles = ["resident", "moderator", "admin"] as const;
 type AssignableRole = (typeof assignableRoles)[number];
@@ -153,6 +154,18 @@ export const adminController = {
           message: "User role updated successfully",
         },
       });
+    } catch (err) {
+      next(err);
+    }
+  },
+  async getUsers(
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const users = await adminService.getUsers();
+      res.json({ data: users });
     } catch (err) {
       next(err);
     }

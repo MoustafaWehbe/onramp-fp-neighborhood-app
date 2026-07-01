@@ -22,4 +22,11 @@ router.patch(
   adminController.updateUserRole
 );
 
+router.get(
+  "/users",
+  authenticate,
+  requirePermission("admin:users:read"),
+  adminController.getUsers
+);
+
 export { router as adminRouter };
