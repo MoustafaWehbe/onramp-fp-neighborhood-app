@@ -1,3 +1,5 @@
+//packages/api/src/middleware/require-permission.ts
+
 import type { Request, Response, NextFunction } from "express";
 import { User, Role, Permission } from "../models";
 

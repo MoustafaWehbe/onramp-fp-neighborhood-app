@@ -4,8 +4,9 @@
 global.console.info = jest.fn();
 global.console.log = jest.fn();
 
-// Set test environment variables
 process.env.NODE_ENV = "test";
+process.env.REDIS = "false";
+
 process.env.JWT_SECRET = "test-jwt-secret";
 process.env.JWT_REFRESH_SECRET = "test-refresh-secret";
 process.env.DATABASE_URL =
