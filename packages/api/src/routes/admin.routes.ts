@@ -7,6 +7,13 @@ import { adminController } from "../controllers/admin.controller";
 
 const router = Router();
 
+router.get(
+  "/roles",
+  authenticate,
+  requirePermission("admin:users:update-role"),
+  adminController.getAssignableRoles
+);
+
 router.patch(
   "/users/:userId/role",
   authenticate,

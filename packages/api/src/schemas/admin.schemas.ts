@@ -5,6 +5,8 @@ export const updateUserRoleSchema = z.object({
     userId: z.string().uuid("Invalid user id"),
   }),
   body: z.object({
-    role: z.enum(["resident", "moderator", "admin", "platform_admin"]),
+    role: z.enum(["resident", "moderator", "admin"]),
   }),
 });
+
+export const getAdminRolesSchema = z.object({});
