@@ -34,10 +34,10 @@ describe("signAccessToken / verifyAccessToken", () => {
   const payload = {
     userId: "user-uuid-123",
     email: "test@example.com",
-    role: "user" as const,
+    role: "resident" as const,
+    roles: ["resident" as const],
     sessionId: "session-uuid-456",
   };
-
   it("signs and verifies a token successfully", () => {
     const token = signAccessToken(payload);
     const decoded = verifyAccessToken(token);
@@ -45,6 +45,7 @@ describe("signAccessToken / verifyAccessToken", () => {
     expect(decoded.userId).toBe(payload.userId);
     expect(decoded.email).toBe(payload.email);
     expect(decoded.role).toBe(payload.role);
+    expect(decoded.roles).toEqual(payload.roles);
   });
 
   it("throws when verifying a tampered token", () => {
