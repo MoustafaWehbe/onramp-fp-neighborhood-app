@@ -28,7 +28,7 @@ export function IssuePage() {
     return <p className="p-6">Issue not found.</p>;
   }
 
-  const isCityWorker = user?.role === "Authority";
+ const isCityWorker = user?.roles?.includes("moderator");
 
   function handleUpdateStatus() {
     if (!issue) {

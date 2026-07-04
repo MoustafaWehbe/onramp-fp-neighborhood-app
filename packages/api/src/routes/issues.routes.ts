@@ -15,18 +15,18 @@ router.get("/", issuesController.getAll);
 router.get("/:id", issuesController.getById);
 
 // POST /api/issues — only residents can submit issues
-router.post("/", authorize("user"), issuesController.create);
+router.post("/", authorize("resident"), issuesController.create);
 
 // PATCH /api/issues/:id/status — only city workers can update status
 router.patch(
   "/:id/status",
-  authorize("authority"),
+  authorize("moderator"),
   issuesController.updateStatus,
 );
 
 // Comments routes
 // GET /api/issues/:id/comments — anyone logged in can view comments for an issue
 router.get("/:id/comments", commentsController.getByIssueId);
-router.post("/:id/comments", authorize("user", "authority"), commentsController.create);
+router.post("/:id/comments", authorize("resident", "moderator"), commentsController.create);
 
 export default router;
