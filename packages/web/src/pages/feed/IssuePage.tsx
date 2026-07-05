@@ -13,13 +13,14 @@ import {
 } from "../../components/ui/select";
 import { statusColor, STATUS_FLOW, type Status } from "../../lib/mock-data";
 import { CommentSection } from "../../components/CommentSection";
-import { useIssue } from "../../hooks/useIssues";
+import { useIssue, useComments } from "../../hooks/useIssues";
 import { apiClient } from "../../lib/api-client";
 
 export function IssuePage() {
   const { id } = useParams();
   const { user } = useAuth();
   const { issue, loading, error } = useIssue(id);
+  const { comments } = useComments(id);
 
   const [newStatus, setNewStatus] = useState<Status | "">("");
   const [note, setNote] = useState("");
@@ -100,7 +101,7 @@ export function IssuePage() {
         </div>
       )}
 
-      <CommentSection issue={issue} />
+      <CommentSection issue={issue} comments={comments} />
     </div>
   );
 }

@@ -39,7 +39,8 @@ export function useIssues(filters: UseIssuesFilters = {}) {
       try {
         setLoading(true);
         const params = new URLSearchParams();
-        if (filters.neighborhood) params.set("neighborhood", filters.neighborhood);
+        if (filters.neighborhood)
+          params.set("neighborhood", filters.neighborhood);
         if (filters.status) params.set("status", filters.status);
         if (filters.category) params.set("category", filters.category);
         if (filters.page) params.set("page", String(filters.page));
@@ -84,4 +85,37 @@ export function useIssue(id: string | undefined) {
   }, [id]);
 
   return { issue, loading, error };
+}
+
+export interface ApiComment {
+  id: string;
+  issueId: string;
+  authorId: string;
+  body: string;
+  createdAt: string;
+}
+
+export function useComments(issueId: string | undefined) {
+  const [comments, setComments] = useState<ApiComment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!issueId) return;
+    async function fetchComments() {
+      try {
+        const res = await apiClient.get(`/issues/${issueId}/comments`, {
+          params: { _t: Date.now() },
+        });
+
+        setComments(res.data.data);
+      } catch {
+        setComments([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchComments();
+  }, [issueId]);
+
+  return { comments, loading };
 }
