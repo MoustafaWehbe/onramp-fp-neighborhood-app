@@ -55,10 +55,10 @@ export function IssueCard({ issue }: { issue: Issue }) {
               {issue.address}
             </span>
             <span className="flex items-center gap-1">
-              <MessageSquare className="h-3.5 w-3.5" /> {issue.comments.length}
+              <MessageSquare className="h-3.5 w-3.5" /> {issue.comments?.length ?? 0}
             </span>
             <span>
-              by {issue.reporter} · {timeAgo(issue.createdAt)}
+               · {timeAgo(issue.createdAt)}
             </span>
           </div>
         </div>

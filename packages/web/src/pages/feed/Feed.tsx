@@ -1,6 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useApp } from "../../lib/app-state";
 import { IssueCard } from "../../components/issue-card";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
@@ -19,9 +18,9 @@ import {
   type Status,
   type Category,
 } from "../../lib/mock-data";
+import { useIssues } from "../../hooks/useIssues";
 
 export function Feed() {
-  const { issues } = useApp();
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
@@ -29,24 +28,19 @@ export function Feed() {
   const [activeCategory, setActiveCategory] = useState<Category | "All">("All");
   const [activeNeighborhood, setActiveNeighborhood] = useState<string>("All");
 
-  const filtered = useMemo(() => {
-    return issues.filter((issue) => {
-      const matchesSearch =
-        search.trim() === "" ||
-        issue.title.toLowerCase().includes(search.toLowerCase()) ||
-        issue.description.toLowerCase().includes(search.toLowerCase());
-      const matchesStatus =
-        activeStatus === "All" || issue.status === activeStatus;
-      const matchesCategory =
-        activeCategory === "All" || issue.category === activeCategory;
-      const matchesNeighborhood =
-        activeNeighborhood === "All" ||
-        issue.neighborhood === activeNeighborhood;
-      return (
-        matchesSearch && matchesStatus && matchesCategory && matchesNeighborhood
-      );
-    });
-  }, [issues, search, activeStatus, activeCategory, activeNeighborhood]);
+  const { issues, loading, error } = useIssues({
+    status: activeStatus === "All" ? undefined : activeStatus,
+    category: activeCategory === "All" ? undefined : activeCategory,
+    neighborhood: activeNeighborhood === "All" ? undefined : activeNeighborhood,
+  });
+
+  const filtered = issues.filter((issue) => {
+    if (search.trim() === "") return true;
+    return (
+      issue.title.toLowerCase().includes(search.toLowerCase()) ||
+      issue.description.toLowerCase().includes(search.toLowerCase())
+    );
+  });
 
   const openCount = issues.filter(
     (i) => i.status === "Reported" || i.status === "Acknowledged",
@@ -73,8 +67,7 @@ export function Feed() {
             </span>
           </h2>
           <p className="text-sm text-muted-foreground">
-            Report potholes, broken lights, noise, and more. Follow the status
-            from reported to resolved.
+            Report potholes, broken lights, noise, and more.
           </p>
         </div>
         <Button
@@ -199,17 +192,26 @@ export function Feed() {
         </Select>
       </div>
 
-      {/* results count */}
+      {/* results */}
       <div className="px-6 py-1">
         <p className="text-xs text-muted-foreground">
-          {filtered.length} issue{filtered.length !== 1 ? "s" : ""} found
+          {loading
+            ? "Loading..."
+            : `${filtered.length} issue${filtered.length !== 1 ? "s" : ""} found`}
         </p>
       </div>
 
-      {/* issue list */}
       <div className="flex-1 px-6 pb-6 overflow-y-auto">
         <div className="space-y-4 pt-2">
-          {filtered.length === 0 ? (
+          {error && (
+            <p className="text-sm text-red-500 text-center py-8">{error}</p>
+          )}
+          {loading && (
+            <p className="text-sm text-muted-foreground text-center py-8">
+              Loading issues...
+            </p>
+          )}
+          {!loading && !error && filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <p className="text-sm font-medium text-muted-foreground">
                 No issues found
@@ -218,9 +220,12 @@ export function Feed() {
                 Try adjusting your filters
               </p>
             </div>
-          ) : (
-            filtered.map((issue) => <IssueCard key={issue.id} issue={issue} />)
           )}
+          {!loading &&
+            !error &&
+            filtered.map((issue) => (
+              <IssueCard key={issue.id} issue={issue as any} />
+            ))}
         </div>
       </div>
     </div>
