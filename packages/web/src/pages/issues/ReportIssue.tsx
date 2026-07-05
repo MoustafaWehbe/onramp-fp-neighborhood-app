@@ -6,6 +6,7 @@ import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
+import { apiClient } from "../../lib/api-client";
 import {
   Select,
   SelectContent,
@@ -22,7 +23,6 @@ import {
 } from "../../lib/mock-data";
 
 export function ReportIssue() {
-  const { addIssue, user } = useApp();
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
@@ -32,6 +32,7 @@ export function ReportIssue() {
   const [address, setAddress] = useState("");
   const [aiNote, setAiNote] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   function handleAnalyze() {
     if (!description.trim()) return;
@@ -44,21 +45,28 @@ export function ReportIssue() {
     }, 800);
   }
 
-  function handleSubmit() {
-    if (!title || !description || !category || !neighborhood) {
-      alert("Please fill in all required fields.");
+  async function handleSubmit() {
+    if (!title || !description || !category || !neighborhood || !address) {
+      alert("Please fill in all fields.");
       return;
     }
-    addIssue({
-      title,
-      description,
-      category: category as Category,
-      neighborhood,
-      address,
-      reporter: user,
-      aiRoutingNote: aiNote ?? undefined,
-    });
-    navigate("/");
+
+    try {
+      setSubmitting(true);
+      const res = await apiClient.post("/issues", {
+        title,
+        description,
+        category,
+        neighborhood,
+        address,
+      });
+      const newIssue = res.data.data;
+      navigate(`/issue/${newIssue.id}`);
+    } catch (err) {
+      alert("Failed to submit issue. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -218,8 +226,9 @@ export function ReportIssue() {
               type="button"
               className="rounded-xl px-6"
               onClick={handleSubmit}
+              disabled={submitting}
             >
-              Submit report
+              {submitting ? "Submitting..." : "Submit report"}
             </Button>
           </div>
         </CardContent>
