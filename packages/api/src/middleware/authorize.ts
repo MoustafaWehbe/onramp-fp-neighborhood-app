@@ -9,6 +9,7 @@ export function authorize(...allowedRoles: AuthRole[]) {
     }
 
     const userRoles: AuthRole[] = req.user.roles ?? [req.user.role];
+
     if (
       allowedRoles.length > 0 &&
       !userRoles.some((role) => allowedRoles.includes(role))
