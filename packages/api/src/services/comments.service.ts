@@ -26,7 +26,7 @@ export const commentsService = {
 
     // residents can only comment on their own issues
     if (
-      requestingUserRole === "user" &&
+      requestingUserRole === "resident" &&
       issue.reportedById !== requestingUserId
     ) {
       throw new Error("Residents can only comment on their own issues");
