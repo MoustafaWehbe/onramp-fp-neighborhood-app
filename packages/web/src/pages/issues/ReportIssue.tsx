@@ -46,7 +46,13 @@ export function ReportIssue() {
   }
 
   async function handleSubmit() {
-    if (!title || !description || !category || !neighborhood || !address) {
+    if (
+      !title.trim() ||
+      !description.trim() ||
+      !category ||
+      !neighborhood ||
+      !address.trim()
+    ) {
       alert("Please fill in all fields.");
       return;
     }
@@ -62,8 +68,12 @@ export function ReportIssue() {
       });
       const newIssue = res.data.data;
       navigate(`/issue/${newIssue.id}`);
-    } catch (err) {
-      alert("Failed to submit issue. Please try again.");
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.error ||
+        err?.response?.data?.errors?.[0]?.message ||
+        "Failed to submit issue. Please try again.";
+      alert(message);
     } finally {
       setSubmitting(false);
     }
