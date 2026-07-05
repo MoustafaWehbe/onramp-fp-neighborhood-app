@@ -1,6 +1,6 @@
 import { Issue } from "@starter-kit/shared";
 import { ProgressLog } from "@starter-kit/shared";
-
+import {chatCompletion} from "../lib/ai"
 export const VALID_STATUSES = [
   "Reported",
   "Acknowledged",
@@ -115,3 +115,4 @@ export const issuesService = {
     });
   },
 };
+

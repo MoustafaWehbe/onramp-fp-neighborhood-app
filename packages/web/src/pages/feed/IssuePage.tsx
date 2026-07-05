@@ -20,7 +20,7 @@ export function IssuePage() {
   const { id } = useParams();
   const { user } = useAuth();
   const { issue, loading, error } = useIssue(id);
-  const { comments } = useComments(id);
+  const { comments, refetch } = useComments(id);
 
   const [newStatus, setNewStatus] = useState<Status | "">("");
   const [note, setNote] = useState("");
@@ -101,7 +101,7 @@ export function IssuePage() {
         </div>
       )}
 
-      <CommentSection issue={issue} comments={comments} />
+      <CommentSection issue={issue} comments={comments} onCommentPosted={refetch} />
     </div>
   );
 }
