@@ -20,10 +20,11 @@ export function IssuePage() {
   const { id } = useParams();
   const { user } = useAuth();
   const { issue, loading, error } = useIssue(id);
-  const { comments } = useComments(id);
+  const { comments, refetch } = useComments(id);
 
   const [newStatus, setNewStatus] = useState<Status | "">("");
   const [note, setNote] = useState("");
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   if (loading) {
     return <p className="p-6 text-muted-foreground">Loading...</p>;
@@ -36,23 +37,20 @@ export function IssuePage() {
   const isCityWorker = user?.role === "moderator";
 
   async function handleUpdateStatus() {
-    if (!newStatus || !note.trim()) {
-      alert("Please select a status and add a note.");
-      return;
-    }
-    try {
-      await apiClient.patch(`/issues/${id}/status`, {
-        status: newStatus,
-        note,
-      });
-      setNewStatus("");
-      setNote("");
-      alert("Status updated successfully!");
-      window.location.reload();
-    } catch {
-      alert("Failed to update status.");
-    }
+  if (!newStatus || !note.trim() || updatingStatus) return;
+  try {
+    setUpdatingStatus(true);
+    await apiClient.patch(`/issues/${id}/status`, { status: newStatus, note });
+    setNewStatus("");
+    setNote("");
+    alert("Status updated successfully!");
+    window.location.reload();
+  } catch {
+    alert("Failed to update status.");
+  } finally {
+    setUpdatingStatus(false);
   }
+}
 
   return (
     <div className="p-6 space-y-6 max-w-2xl">
@@ -97,11 +95,13 @@ export function IssuePage() {
             rows={3}
           />
 
-          <Button onClick={handleUpdateStatus}>Update status</Button>
+          <Button onClick={handleUpdateStatus} disabled={updatingStatus}>
+            {updatingStatus ? "Updating..." : "Update status"}
+          </Button>
         </div>
       )}
 
-      <CommentSection issue={issue} comments={comments} />
+      <CommentSection issue={issue} comments={comments} onCommentPosted={refetch} />
     </div>
   );
 }

@@ -224,7 +224,7 @@ export function Feed() {
           {!loading &&
             !error &&
             filtered.map((issue) => (
-              <IssueCard key={issue.id} issue={issue as any} />
+              <IssueCard key={issue.id} issue={issue} />
             ))}
         </div>
       </div>
