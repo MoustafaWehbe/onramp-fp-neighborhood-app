@@ -25,9 +25,9 @@ interface UseIssuesFilters {
   neighborhood?: string;
   status?: string;
   category?: string;
+  page?: number;
   dateFrom?: string;
   dateTo?: string;
-  page?: number;
 }
 
 export function useIssues(filters: UseIssuesFilters = {}) {
@@ -42,12 +42,15 @@ export function useIssues(filters: UseIssuesFilters = {}) {
       try {
         setLoading(true);
         const params = new URLSearchParams();
-        if (filters.neighborhood) params.set("neighborhood", filters.neighborhood);
+        if (filters.neighborhood)
+          params.set("neighborhood", filters.neighborhood);
         if (filters.status) params.set("status", filters.status);
         if (filters.category) params.set("category", filters.category);
         if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
         if (filters.dateTo) params.set("dateTo", filters.dateTo);
         if (filters.page) params.set("page", String(filters.page));
+        if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
+        if (filters.dateTo) params.set("dateTo", filters.dateTo);
 
         const res = await apiClient.get(`/issues?${params.toString()}`);
         if (!ignore) {
@@ -62,7 +65,9 @@ export function useIssues(filters: UseIssuesFilters = {}) {
       }
     }
     fetchIssues();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [
     filters.neighborhood,
     filters.status,
@@ -70,6 +75,8 @@ export function useIssues(filters: UseIssuesFilters = {}) {
     filters.dateFrom,
     filters.dateTo,
     filters.page,
+    filters.dateFrom,
+    filters.dateTo
   ]);
 
   return { issues, total, loading, error };
@@ -98,7 +105,9 @@ export function useIssue(id: string | undefined) {
       }
     }
     fetchIssue();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [id]);
 
   return { issue, loading, error };
@@ -110,10 +119,9 @@ export function useComments(issueId: string | undefined) {
 
   async function fetchComments(id: string) {
     try {
-      const res = await apiClient.get(
-        `/issues/${id}/comments`,
-        { params: { _t: Date.now() } }
-      );
+      const res = await apiClient.get(`/issues/${id}/comments`, {
+        params: { _t: Date.now() },
+      });
       setComments(res.data.data);
     } catch {
       setComments([]);
@@ -127,10 +135,9 @@ export function useComments(issueId: string | undefined) {
     let ignore = false;
     async function fetch() {
       try {
-        const res = await apiClient.get(
-          `/issues/${issueId}/comments`,
-          { params: { _t: Date.now() } }
-        );
+        const res = await apiClient.get(`/issues/${issueId}/comments`, {
+          params: { _t: Date.now() },
+        });
         if (!ignore) setComments(res.data.data);
       } catch {
         if (!ignore) setComments([]);
@@ -139,7 +146,9 @@ export function useComments(issueId: string | undefined) {
       }
     }
     fetch();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [issueId]);
 
   function refetch() {
@@ -156,4 +165,3 @@ export interface ApiComment {
   body: string;
   createdAt: string;
 }
-

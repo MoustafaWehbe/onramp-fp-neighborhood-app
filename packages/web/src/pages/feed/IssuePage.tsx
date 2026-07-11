@@ -34,23 +34,27 @@ export function IssuePage() {
     return <p className="p-6">Issue not found.</p>;
   }
 
-  const isCityWorker = user?.role === "moderator";
+  const isCityWorker =
+    user?.role === "moderator" || user?.roles?.includes("moderator");
 
   async function handleUpdateStatus() {
-  if (!newStatus || !note.trim() || updatingStatus) return;
-  try {
-    setUpdatingStatus(true);
-    await apiClient.patch(`/issues/${id}/status`, { status: newStatus, note });
-    setNewStatus("");
-    setNote("");
-    alert("Status updated successfully!");
-    window.location.reload();
-  } catch {
-    alert("Failed to update status.");
-  } finally {
-    setUpdatingStatus(false);
+    if (!newStatus || !note.trim() || updatingStatus) return;
+    try {
+      setUpdatingStatus(true);
+      await apiClient.patch(`/issues/${id}/status`, {
+        status: newStatus,
+        note,
+      });
+      setNewStatus("");
+      setNote("");
+      alert("Status updated successfully!");
+      window.location.reload();
+    } catch {
+      alert("Failed to update status.");
+    } finally {
+      setUpdatingStatus(false);
+    }
   }
-}
 
   return (
     <div className="p-6 space-y-6 max-w-2xl">
@@ -101,7 +105,11 @@ export function IssuePage() {
         </div>
       )}
 
-      <CommentSection issue={issue} comments={comments} onCommentPosted={refetch} />
+      <CommentSection
+        issue={issue}
+        comments={comments}
+        onCommentPosted={refetch}
+      />
     </div>
   );
 }

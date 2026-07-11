@@ -12,6 +12,7 @@ interface AuthUser {
   email: string;
   name: string;
   role: string;
+  roles: string[];
 }
 
 interface AuthContextValue {
