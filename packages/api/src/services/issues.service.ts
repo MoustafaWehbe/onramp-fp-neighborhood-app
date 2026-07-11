@@ -114,5 +114,39 @@ export const issuesService = {
       return issue;
     });
   },
+
+  async categorize(description: string, categories: string[]) {
+  const prompt = `You are a municipal issue classifier for a community platform.
+A resident has submitted the following issue description:
+
+"${description}"
+
+Available categories: ${categories.join(", ")}
+
+Return ONLY a valid JSON object with exactly these two fields:
+{
+  "suggestedCategory": "<one of the available categories above>",
+  "routingNote": "<one short, polite sentence explaining which city department handles this>"
+}
+
+Do not include any explanation, markdown, or extra text. JSON only.`;
+
+  const response = await chatCompletion([
+    { role: "user", content: prompt }
+  ]);
+
+  try {
+    const parsed = JSON.parse(response);
+    return {
+      suggestedCategory: parsed.suggestedCategory,
+      routingNote: parsed.routingNote,
+    };
+  } catch {
+    return {
+      suggestedCategory: categories[0],
+      routingNote: "This issue has been routed to the appropriate department.",
+    };
+  }
+},
 };
 
