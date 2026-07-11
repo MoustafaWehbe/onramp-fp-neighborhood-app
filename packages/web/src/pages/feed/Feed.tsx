@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import type { DateRange } from "react-day-picker";
 import { IssueCard } from "../../components/issue-card";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
+import { Calendar } from "../../components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../../components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -11,7 +18,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
-import { Clock, TrendingUp, CheckCircle, Search, Sparkles } from "lucide-react";
+import {
+  Clock,
+  TrendingUp,
+  CheckCircle,
+  Search,
+  Sparkles,
+  SlidersHorizontal,
+  CalendarRange,
+  X,
+} from "lucide-react";
 import {
   CATEGORIES,
   NEIGHBORHOODS,
@@ -19,6 +35,18 @@ import {
   type Category,
 } from "../../lib/mock-data";
 import { useIssues } from "../../hooks/useIssues";
+import { Badge } from "../../components/ui/badge";
+
+function toISODate(d: Date) {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatShort(d: Date) {
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
 
 export function Feed() {
   const navigate = useNavigate();
@@ -27,11 +55,22 @@ export function Feed() {
   const [activeStatus, setActiveStatus] = useState<Status | "All">("All");
   const [activeCategory, setActiveCategory] = useState<Category | "All">("All");
   const [activeNeighborhood, setActiveNeighborhood] = useState<string>("All");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [showFilters, setShowFilters] = useState(false);
+
+  const activeFilterCount = [
+    activeNeighborhood !== "All",
+    activeCategory !== "All",
+    activeStatus !== "All",
+    Boolean(dateRange?.from),
+  ].filter(Boolean).length;
 
   const { issues, loading, error } = useIssues({
     status: activeStatus === "All" ? undefined : activeStatus,
     category: activeCategory === "All" ? undefined : activeCategory,
     neighborhood: activeNeighborhood === "All" ? undefined : activeNeighborhood,
+    dateFrom: dateRange?.from ? toISODate(dateRange.from) : undefined,
+    dateTo: dateRange?.to ? toISODate(dateRange.to) : undefined,
   });
 
   const filtered = issues.filter((issue) => {
@@ -129,8 +168,8 @@ export function Feed() {
         </Card>
       </div>
 
-      {/* search + filter bar */}
-      <div className="px-6 py-3 flex items-center gap-3 flex-wrap">
+      {/* search bar */}
+      <div className="px-6 py-3 flex items-center gap-3">
         <div className="relative flex-1 min-w-48">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -141,56 +180,142 @@ export function Feed() {
           />
         </div>
 
-        <Select
-          value={activeNeighborhood}
-          onValueChange={setActiveNeighborhood}
+        <Button
+          type="button"
+          variant="outline"
+          className="rounded-xl gap-2 shrink-0"
+          onClick={() => setShowFilters((v) => !v)}
         >
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="All neighborhoods" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All">All neighborhoods</SelectItem>
-            {NEIGHBORHOODS.map((n) => (
-              <SelectItem key={n} value={n}>
-                {n}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={activeCategory}
-          onValueChange={(v) => setActiveCategory(v as Category | "All")}
-        >
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder="All categories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All">All categories</SelectItem>
-            {CATEGORIES.map((c) => (
-              <SelectItem key={c} value={c}>
-                {c}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select
-          value={activeStatus}
-          onValueChange={(v) => setActiveStatus(v as Status | "All")}
-        >
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="All statuses" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="All">All statuses</SelectItem>
-            <SelectItem value="Reported">Reported</SelectItem>
-            <SelectItem value="Acknowledged">Acknowledged</SelectItem>
-            <SelectItem value="In Progress">In Progress</SelectItem>
-            <SelectItem value="Resolved">Resolved</SelectItem>
-          </SelectContent>
-        </Select>
+          <SlidersHorizontal className="h-4 w-4" />
+          Filters
+          {activeFilterCount > 0 && (
+            <Badge
+              variant="secondary"
+              className="ml-0.5 h-5 min-w-5 justify-center px-1.5"
+            >
+              {activeFilterCount}
+            </Badge>
+          )}
+        </Button>
       </div>
+
+      {/* filter panel — toggled open/closed, independent of the search bar */}
+      {showFilters && (
+        <div className="px-6 pb-3 flex items-center gap-3 flex-wrap">
+          <Select
+            value={activeNeighborhood}
+            onValueChange={setActiveNeighborhood}
+          >
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="All neighborhoods" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All neighborhoods</SelectItem>
+              {NEIGHBORHOODS.map((n) => (
+                <SelectItem key={n} value={n}>
+                  {n}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={activeCategory}
+            onValueChange={(v) => setActiveCategory(v as Category | "All")}
+          >
+            <SelectTrigger className="w-44">
+              <SelectValue placeholder="All categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All categories</SelectItem>
+              {CATEGORIES.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={activeStatus}
+            onValueChange={(v) => setActiveStatus(v as Status | "All")}
+          >
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="All statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All statuses</SelectItem>
+              <SelectItem value="Reported">Reported</SelectItem>
+              <SelectItem value="Acknowledged">Acknowledged</SelectItem>
+              <SelectItem value="In Progress">In Progress</SelectItem>
+              <SelectItem value="Resolved">Resolved</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                className="gap-2 rounded-xl border-border/60 bg-muted/30 font-normal"
+              >
+                <CalendarRange className="h-4 w-4 text-muted-foreground" />
+                {dateRange?.from ? (
+                  dateRange.to ? (
+                    <>
+                      {formatShort(dateRange.from)} – {formatShort(dateRange.to)}
+                    </>
+                  ) : (
+                    formatShort(dateRange.from)
+                  )
+                ) : (
+                  <span className="text-muted-foreground">Date range</span>
+                )}
+                {dateRange?.from && (
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    aria-label="Clear date range"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDateRange(undefined);
+                    }}
+                    className="ml-1 flex h-4 w-4 items-center justify-center rounded-full hover:bg-muted"
+                  >
+                    <X className="h-3 w-3" />
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="range"
+                selected={dateRange}
+                onSelect={setDateRange}
+                numberOfMonths={2}
+                defaultMonth={dateRange?.from}
+              />
+            </PopoverContent>
+          </Popover>
+
+          {activeFilterCount > 0 && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground"
+              onClick={() => {
+                setActiveNeighborhood("All");
+                setActiveCategory("All");
+                setActiveStatus("All");
+                setDateRange(undefined);
+              }}
+            >
+              Clear all
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* results */}
       <div className="px-6 py-1">

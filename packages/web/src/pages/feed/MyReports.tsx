@@ -1,14 +1,16 @@
 import { useNavigate } from "react-router-dom";
-import { useApp } from "../../lib/app-state";
+import { useAuth } from "../../hooks/useAuth";
+import { useIssues } from "../../hooks/useIssues";
 import { IssueCard } from "../../components/issue-card";
 import { Button } from "../../components/ui/button";
 import { FileText, PlusCircle } from "lucide-react";
 
 export function MyReports() {
-  const { issues, user } = useApp();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const { issues, loading, error } = useIssues();
 
-  const myIssues = issues.filter((i) => i.reporter === user);
+  const myIssues = issues.filter((i) => i.reportedById === user?.id);
 
   return (
     <div className="p-6 space-y-4">
@@ -17,7 +19,9 @@ export function MyReports() {
         <div>
           <h2 className="text-2xl font-bold">Your submissions</h2>
           <p className="text-sm text-muted-foreground">
-            {myIssues.length} report{myIssues.length !== 1 ? "s" : ""}
+            {loading
+              ? "Loading..."
+              : `${myIssues.length} report${myIssues.length !== 1 ? "s" : ""}`}
           </p>
         </div>
         <Button
@@ -29,8 +33,12 @@ export function MyReports() {
         </Button>
       </div>
 
+      {error && (
+        <p className="text-sm text-red-500 text-center py-8">{error}</p>
+      )}
+
       {/* issue list */}
-      {myIssues.length === 0 ? (
+      {!loading && !error && myIssues.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
             <FileText className="h-6 w-6 text-muted-foreground" />

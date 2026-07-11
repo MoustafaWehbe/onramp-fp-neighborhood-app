@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import { Issue } from "@starter-kit/shared";
 import { ProgressLog } from "@starter-kit/shared";
 import {chatCompletion} from "../lib/ai"
@@ -24,14 +25,36 @@ export const issuesService = {
     neighborhood?: string;
     status?: string;
     category?: string;
+    dateFrom?: string;
+    dateTo?: string;
     page?: number;
     limit?: number;
   }) {
-    const { neighborhood, status, category, page = 1, limit = 20 } = filters;
-    const where: Record<string, string> = {};
+    const {
+      neighborhood,
+      status,
+      category,
+      dateFrom,
+      dateTo,
+      page = 1,
+      limit = 20,
+    } = filters;
+    const where: Record<string, unknown> = {};
     if (neighborhood) where.neighborhood = neighborhood;
     if (status) where.status = status;
     if (category) where.category = category;
+
+    if (dateFrom || dateTo) {
+      const createdAt: Record<symbol, Date> = {};
+      if (dateFrom) createdAt[Op.gte] = new Date(dateFrom);
+      if (dateTo) {
+        // include the entire end day
+        const end = new Date(dateTo);
+        end.setHours(23, 59, 59, 999);
+        createdAt[Op.lte] = end;
+      }
+      where.createdAt = createdAt;
+    }
 
     const offset = (page - 1) * limit;
 
