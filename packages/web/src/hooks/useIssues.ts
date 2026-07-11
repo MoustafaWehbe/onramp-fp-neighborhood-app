@@ -25,6 +25,8 @@ interface UseIssuesFilters {
   neighborhood?: string;
   status?: string;
   category?: string;
+  dateFrom?: string;
+  dateTo?: string;
   page?: number;
 }
 
@@ -43,6 +45,8 @@ export function useIssues(filters: UseIssuesFilters = {}) {
         if (filters.neighborhood) params.set("neighborhood", filters.neighborhood);
         if (filters.status) params.set("status", filters.status);
         if (filters.category) params.set("category", filters.category);
+        if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
+        if (filters.dateTo) params.set("dateTo", filters.dateTo);
         if (filters.page) params.set("page", String(filters.page));
 
         const res = await apiClient.get(`/issues?${params.toString()}`);
@@ -59,7 +63,14 @@ export function useIssues(filters: UseIssuesFilters = {}) {
     }
     fetchIssues();
     return () => { ignore = true; };
-  }, [filters.neighborhood, filters.status, filters.category, filters.page]);
+  }, [
+    filters.neighborhood,
+    filters.status,
+    filters.category,
+    filters.dateFrom,
+    filters.dateTo,
+    filters.page,
+  ]);
 
   return { issues, total, loading, error };
 }

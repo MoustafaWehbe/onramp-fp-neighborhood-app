@@ -4,7 +4,8 @@ import { issuesService } from "../services/issues.service";
 export const issuesController = {
   async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { neighborhood, status, category, page, limit } = req.query;
+      const { neighborhood, status, category, dateFrom, dateTo, page, limit } =
+        req.query;
       const parsedPage = Math.max(1, parseInt(page as string) || 1);
       const parsedLimit = Math.min(
         100,
@@ -14,6 +15,8 @@ export const issuesController = {
         neighborhood: neighborhood as string,
         status: status as string,
         category: category as string,
+        dateFrom: dateFrom as string,
+        dateTo: dateTo as string,
         page: parsedPage,
         limit: parsedLimit,
       });
