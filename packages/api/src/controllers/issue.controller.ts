@@ -73,4 +73,24 @@ export const issuesController = {
       next(err);
     }
   },
+
+  async categorize(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const { description, categories } = req.body;
+
+    if (!description || !categories || !Array.isArray(categories)) {
+      res.status(400).json({ error: "description and categories are required" });
+      return;
+    }
+
+    const result = await issuesService.categorize(description, categories);
+    res.status(200).json({ data: result });
+  } catch (err) {
+    next(err);
+  }
+},
 };

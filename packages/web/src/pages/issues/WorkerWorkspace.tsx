@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
-import { useApp } from "../../lib/app-state";
 import { Badge } from "../../components/ui/badge";
 import { statusColor } from "../../lib/mock-data";
+import { useIssues } from "../../hooks/useIssues";
 
 export function WorkerWorkspace() {
-  const { issues } = useApp();
+  const { issues, loading, error } = useIssues();
 
   return (
     <div className="p-6 space-y-4">
@@ -13,8 +13,16 @@ export function WorkerWorkspace() {
         All reported issues across neighborhoods
       </p>
 
+      {loading && (
+        <p className="text-sm text-muted-foreground">Loading issues...</p>
+      )}
+
+      {error && (
+        <p className="text-sm text-red-500">{error}</p>
+      )}
+
       <div className="space-y-2">
-        {issues.map((issue) => (
+        {!loading && !error && issues.map((issue) => (
           <Link
             key={issue.id}
             to={`/issue/${issue.id}`}
@@ -31,6 +39,10 @@ export function WorkerWorkspace() {
             </p>
           </Link>
         ))}
+
+        {!loading && !error && issues.length === 0 && (
+          <p className="text-sm text-muted-foreground">No issues reported yet.</p>
+        )}
       </div>
     </div>
   );

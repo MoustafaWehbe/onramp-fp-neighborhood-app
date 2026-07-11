@@ -11,6 +11,8 @@ router.use(authenticate);
 // GET /api/issues — anyone logged in can view the feed
 router.get("/", issuesController.getAll);
 
+router.post("/ai-categorize", issuesController.categorize);
+
 // GET /api/issues/:id — anyone logged in can view one issue
 router.get("/:id", issuesController.getById);
 
@@ -27,6 +29,10 @@ router.patch(
 // Comments routes
 // GET /api/issues/:id/comments — anyone logged in can view comments for an issue
 router.get("/:id/comments", commentsController.getByIssueId);
-router.post("/:id/comments", authorize("resident", "moderator"), commentsController.create);
+router.post(
+  "/:id/comments",
+  authorize("resident", "moderator"),
+  commentsController.create,
+);
 
 export default router;
