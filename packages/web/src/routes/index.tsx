@@ -14,6 +14,7 @@ import { Feed } from "../pages/feed/Feed";
 import { MyReports } from "../pages/feed/MyReports";
 import { IssuePage } from "../pages/feed/IssuePage";
 import { AdminUsers } from "@/pages/admin/AdminUsers";
+import { AdminConsole } from "@/pages/admin/AdminConsole";
 
 export function AppRoutes() {
   return (
@@ -27,6 +28,7 @@ export function AppRoutes() {
       {/* Protected app routes */}
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
+          <Route path="/admin" element={<AdminConsole />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/" element={<Feed />} />
           <Route path="/issue/:id" element={<IssuePage />} />

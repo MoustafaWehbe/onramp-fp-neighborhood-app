@@ -1,7 +1,16 @@
 import { User, Role } from "../models";
+import { Neighborhood, Category } from "@starter-kit/shared";
 
 function getRoleNames(user: unknown): string[] {
   return ((user as { roles?: Role[] }).roles ?? []).map((role) => role.name);
+}
+
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
 }
 
 function getPrimaryRole(roles: string[]): string {
@@ -31,6 +40,50 @@ export const adminService = {
         role: getPrimaryRole(roles),
         roles,
       };
+    });
+  },
+
+  async getNeighborhoods() {
+    return Neighborhood.findAll({ order: [["name", "ASC"]] });
+  },
+
+  async createNeighborhood(data: { name: string; city?: string }) {
+    const slug = slugify(data.name);
+
+    const existing = await Neighborhood.findOne({ where: { slug } });
+    if (existing) {
+      throw new Error("A neighborhood with this name already exists");
+    }
+
+    return Neighborhood.create({
+      name: data.name,
+      slug,
+      city: data.city || "Unspecified",
+    });
+  },
+
+  async getCategories() {
+    return Category.findAll({ order: [["name", "ASC"]] });
+  },
+
+  async createCategory(data: {
+    name: string;
+    description?: string;
+    department?: string;
+  }) {
+    const slug = slugify(data.name);
+
+    const existing = await Category.findOne({ where: { slug } });
+    if (existing) {
+      throw new Error("A category with this name already exists");
+    }
+
+    return Category.create({
+      name: data.name,
+      slug,
+      description: data.description ?? null,
+      department: data.department ?? null,
+      embedding: null,
     });
   },
 };

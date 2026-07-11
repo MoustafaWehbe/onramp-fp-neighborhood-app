@@ -15,19 +15,17 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { Sparkles, RefreshCw } from "lucide-react";
-import {
-  CATEGORIES,
-  NEIGHBORHOODS,
-  type Category,
-  aiSuggest,
-} from "../../lib/mock-data";
+import { aiSuggest } from "../../lib/mock-data";
+import { useNeighborhoods, useCategories } from "../../hooks/useReferenceData";
 
 export function ReportIssue() {
   const navigate = useNavigate();
+  const { neighborhoods } = useNeighborhoods();
+  const { categories } = useCategories();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<Category | "">("");
+  const [category, setCategory] = useState<string>("");
   const [neighborhood, setNeighborhood] = useState("");
   const [address, setAddress] = useState("");
   const [aiNote, setAiNote] = useState<string | null>(null);
@@ -172,17 +170,14 @@ export function ReportIssue() {
               <Label htmlFor="category" className="font-medium">
                 Category
               </Label>
-              <Select
-                value={category}
-                onValueChange={(v) => setCategory(v as Category)}
-              >
+              <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger id="category" className="rounded-xl">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
                 <SelectContent>
-                  {CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>
-                      {c}
+                  {categories.map((c) => (
+                    <SelectItem key={c.id} value={c.name}>
+                      {c.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -198,9 +193,9 @@ export function ReportIssue() {
                   <SelectValue placeholder="Select a neighborhood" />
                 </SelectTrigger>
                 <SelectContent>
-                  {NEIGHBORHOODS.map((n) => (
-                    <SelectItem key={n} value={n}>
-                      {n}
+                  {neighborhoods.map((n) => (
+                    <SelectItem key={n.id} value={n.name}>
+                      {n.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -41,7 +41,7 @@ export function Login() {
     try {
       setError(null);
       await login(data.email, data.password);
-      navigate("/dashboard");
+      navigate("/");
     } catch {
       setError("Invalid email or password");
     }

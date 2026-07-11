@@ -5,3 +5,14 @@ export const updateUserRoleSchema = z.object({
 });
 
 export const getAdminRolesSchema = z.object({});
+
+export const createNeighborhoodSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(120),
+  city: z.string().trim().max(120).optional(),
+});
+
+export const createCategorySchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(120),
+  description: z.string().trim().max(2000).optional(),
+  department: z.string().trim().max(120).optional(),
+});

@@ -170,4 +170,64 @@ export const adminController = {
       next(err);
     }
   },
+
+  async getNeighborhoods(
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const neighborhoods = await adminService.getNeighborhoods();
+      res.json({ data: neighborhoods });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async createNeighborhood(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const neighborhood = await adminService.createNeighborhood(req.body);
+      res.status(201).json({ data: neighborhood });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(409).json({ error: err.message });
+        return;
+      }
+      next(err);
+    }
+  },
+
+  async getCategories(
+    _req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const categories = await adminService.getCategories();
+      res.json({ data: categories });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async createCategory(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const category = await adminService.createCategory(req.body);
+      res.status(201).json({ data: category });
+    } catch (err) {
+      if (err instanceof Error) {
+        res.status(409).json({ error: err.message });
+        return;
+      }
+      next(err);
+    }
+  },
 };

@@ -1,12 +1,28 @@
 import { Outlet, useLocation } from "react-router-dom";
-import { AppProvider, useApp } from "@/lib/app-state";
+import { AppProvider } from "@/lib/app-state";
+import { useAuth } from "@/hooks/useAuth";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Toaster } from "@/components/ui/sonner";
 import { Badge } from "@/components/ui/badge";
 
+function formatRoleLabel(role?: string) {
+  switch (role) {
+    case "resident":
+      return "Resident";
+    case "moderator":
+      return "Authority Representative";
+    case "admin":
+      return "Admin";
+    case "platform_admin":
+      return "Platform Admin";
+    default:
+      return "Resident";
+  }
+}
+
 function TopBar() {
-  const { role } = useApp();
+  const { user } = useAuth();
   const location = useLocation();
 
   const pathname = location.pathname;
@@ -34,7 +50,7 @@ function TopBar() {
         {title}
       </h1>
       <div className="ml-auto flex items-center gap-2">
-        <Badge variant="outline">{role} view</Badge>
+        <Badge variant="outline">{formatRoleLabel(user?.role)} view</Badge>
       </div>
     </header>
   );
