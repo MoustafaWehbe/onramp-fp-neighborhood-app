@@ -12,6 +12,7 @@ export interface IssueAttributes {
   aiRoutingNote?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
+  embedding?: number[] | null;
 }
 
 export interface IssueCreationAttributes extends Optional<
@@ -32,6 +33,7 @@ export class Issue
   declare status: "Reported" | "Acknowledged" | "In Progress" | "Resolved";
   declare reportedById: string;
   declare aiRoutingNote: string | null;
+  declare embedding: number[] | null;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
 
@@ -79,6 +81,10 @@ export class Issue
         },
         aiRoutingNote: {
           type: DataTypes.TEXT,
+          allowNull: true,
+        },
+        embedding: {
+          type: DataTypes.ARRAY(DataTypes.FLOAT),
           allowNull: true,
         },
       },

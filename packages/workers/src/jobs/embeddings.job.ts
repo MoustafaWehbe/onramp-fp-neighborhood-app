@@ -16,9 +16,13 @@ export async function processEmbeddingsJob(
 
   const embedding = await generateEmbedding(text);
 
-  // TODO: store the embedding vector in your database
-  // e.g., using pgvector:
-  // await YourModel.update({ embedding }, { where: { id: entityId } });
+  if (entityType === "issue") {
+    const { Issue } = await import("@starter-kit/shared");
+    await Issue.update(
+      { embedding: embedding as any },
+      { where: { id: entityId } },
+    );
+  }
 
   console.info(
     `[embeddings] Generated ${embedding.length}-dim vector for ${entityType}:${entityId}`,
