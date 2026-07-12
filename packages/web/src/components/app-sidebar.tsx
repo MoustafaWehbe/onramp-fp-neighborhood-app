@@ -6,6 +6,8 @@ import {
   ClipboardList,
   MapPin,
   Settings,
+  LogOut,
+  ShieldAlert,
 } from "lucide-react";
 import {
   Sidebar,
@@ -37,6 +39,7 @@ const authorityNav = [
 const adminNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
   { title: "Worker Workspace", url: "/worker-workspace", icon: ClipboardList },
+  { title: "Admin Console", url: "/admin", icon: ShieldAlert },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
@@ -47,8 +50,9 @@ function formatRole(role?: string) {
     case "resident":
       return "Resident";
     case "moderator":
-    case "admin":
       return "Authority Representative";
+    case "admin":
+      return "Admin";
     case "platform_admin":
       return "Platform Admin";
     default:
@@ -57,7 +61,7 @@ function formatRole(role?: string) {
 }
 
 export function AppSidebar() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { pathname } = useLocation();
 
   const role = user?.role ?? "resident";
@@ -65,7 +69,7 @@ export function AppSidebar() {
   const nav =
     role === "resident"
       ? residentNav
-      : role === "platform_admin"
+      : role === "platform_admin" || role === "admin"
         ? adminNav
         : authorityNav;
 
@@ -131,13 +135,18 @@ export function AppSidebar() {
             {user?.name ?? "Unknown user"}
           </div>
 
-          <div className="px-2 text-xs text-sidebar-foreground/60 truncate">
-            {user?.email}
-          </div>
-
           <div className="mx-2 rounded-md bg-sidebar-accent/70 px-2 py-1 text-xs font-medium text-sidebar-foreground">
             {formatRole(role)}
           </div>
+
+          <button
+            type="button"
+            onClick={() => void logout()}
+            className="mx-2 flex items-center gap-2 rounded-md px-2 py-1.5 text-xs font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/70 hover:text-sidebar-foreground"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            Log out
+          </button>
         </div>
       </SidebarFooter>
     </Sidebar>

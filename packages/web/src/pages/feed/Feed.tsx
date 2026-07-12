@@ -28,13 +28,9 @@ import {
   CalendarRange,
   X,
 } from "lucide-react";
-import {
-  CATEGORIES,
-  NEIGHBORHOODS,
-  type Status,
-  type Category,
-} from "../../lib/mock-data";
+import { type Status } from "../../lib/mock-data";
 import { useIssues } from "../../hooks/useIssues";
+import { useNeighborhoods, useCategories } from "../../hooks/useReferenceData";
 import { Badge } from "../../components/ui/badge";
 
 function toISODate(d: Date) {
@@ -50,10 +46,12 @@ function formatShort(d: Date) {
 
 export function Feed() {
   const navigate = useNavigate();
+  const { neighborhoods } = useNeighborhoods();
+  const { categories } = useCategories();
 
   const [search, setSearch] = useState("");
   const [activeStatus, setActiveStatus] = useState<Status | "All">("All");
-  const [activeCategory, setActiveCategory] = useState<Category | "All">("All");
+  const [activeCategory, setActiveCategory] = useState<string>("All");
   const [activeNeighborhood, setActiveNeighborhood] = useState<string>("All");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [showFilters, setShowFilters] = useState(false);
@@ -211,26 +209,23 @@ export function Feed() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">All neighborhoods</SelectItem>
-              {NEIGHBORHOODS.map((n) => (
-                <SelectItem key={n} value={n}>
-                  {n}
+              {neighborhoods.map((n) => (
+                <SelectItem key={n.id} value={n.name}>
+                  {n.name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          <Select
-            value={activeCategory}
-            onValueChange={(v) => setActiveCategory(v as Category | "All")}
-          >
+          <Select value={activeCategory} onValueChange={setActiveCategory}>
             <SelectTrigger className="w-44">
               <SelectValue placeholder="All categories" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="All">All categories</SelectItem>
-              {CATEGORIES.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
+              {categories.map((c) => (
+                <SelectItem key={c.id} value={c.name}>
+                  {c.name}
                 </SelectItem>
               ))}
             </SelectContent>
