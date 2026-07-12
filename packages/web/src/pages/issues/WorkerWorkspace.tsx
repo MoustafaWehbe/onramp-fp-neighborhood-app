@@ -17,31 +17,33 @@ export function WorkerWorkspace() {
         <p className="text-sm text-muted-foreground">Loading issues...</p>
       )}
 
-      {error && (
-        <p className="text-sm text-red-500">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-500">{error}</p>}
 
       <div className="space-y-2">
-        {!loading && !error && issues.map((issue) => (
-          <Link
-            key={issue.id}
-            to={`/issue/${issue.id}`}
-            className="block border border-border rounded-lg p-4 hover:bg-muted"
-          >
-            <div className="flex items-center justify-between">
-              <span className="font-medium">{issue.title}</span>
-              <Badge variant="outline" className={statusColor(issue.status)}>
-                {issue.status}
-              </Badge>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {issue.neighborhood} · {issue.category}
-            </p>
-          </Link>
-        ))}
+        {!loading &&
+          !error &&
+          issues.map((issue) => (
+            <Link
+              key={issue.id}
+              to={`/issue/${issue.id}`}
+              className="block border border-border rounded-lg p-4 hover:bg-muted"
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-medium">{issue.title}</span>
+                <Badge variant="outline" className={statusColor(issue.status)}>
+                  {issue.status}
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {issue.neighborhood} · {issue.category}
+              </p>
+            </Link>
+          ))}
 
         {!loading && !error && issues.length === 0 && (
-          <p className="text-sm text-muted-foreground">No issues reported yet.</p>
+          <p className="text-sm text-muted-foreground">
+            No issues reported yet.
+          </p>
         )}
       </div>
     </div>
