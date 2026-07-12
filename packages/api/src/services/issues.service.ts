@@ -2,6 +2,7 @@ import { Op } from "sequelize";
 import { Issue } from "@starter-kit/shared";
 import { ProgressLog } from "@starter-kit/shared";
 import {chatCompletion} from "../lib/ai"
+import {embeddingsQueue} from "@starter-kit/shared"
 export const VALID_STATUSES = [
   "Reported",
   "Acknowledged",
@@ -97,6 +98,14 @@ export const issuesService = {
       aiRoutingNote: data.aiRoutingNote,
       status: "Reported",
     });
+    // queue embedding generation via BullMQ
+    if (embeddingsQueue) {
+      await embeddingsQueue.add("generate-embedding", {
+        entityId: issue.id,
+        entityType: "issue",
+        text: `${issue.title} ${issue.description}`,
+      });
+    }
     return issue;
   },
 
