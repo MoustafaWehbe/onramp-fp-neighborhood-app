@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useApp } from "../../lib/app-state";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Textarea } from "../../components/ui/textarea";
@@ -32,15 +31,22 @@ export function ReportIssue() {
   const [analyzing, setAnalyzing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  function handleAnalyze() {
+  async function handleAnalyze() {
     if (!description.trim()) return;
     setAnalyzing(true);
-    setTimeout(() => {
-      const result = aiSuggest(description);
-      setCategory(result.category);
-      setAiNote(result.note);
+    try {
+      const res = await apiClient.post("/issues/ai-categorize", {
+        description,
+        categories: categories.map((c) => c.name),
+      });
+      const { suggestedCategory, routingNote } = res.data.data;
+      setCategory(suggestedCategory);
+      setAiNote(routingNote);
+    } catch {
+      setAiNote("Could not analyze — please select a category manually.");
+    } finally {
       setAnalyzing(false);
-    }, 800);
+    }
   }
 
   async function handleSubmit() {

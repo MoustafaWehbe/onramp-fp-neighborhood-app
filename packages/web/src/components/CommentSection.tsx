@@ -45,7 +45,9 @@ export function CommentSection({
             <span className="font-medium">
               {comment.authorId === user?.id ? "You" : "community member"}
             </span>
-            <Badge variant="outline">{comment.role}</Badge>
+            {comment.authorId === user?.id ? (
+              <Badge variant="outline">You</Badge>
+            ) : null}
             <span className="text-muted-foreground">
               {timeAgo(comment.createdAt)}
             </span>

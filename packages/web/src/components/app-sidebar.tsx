@@ -64,7 +64,13 @@ export function AppSidebar() {
   const { user, logout } = useAuth();
   const { pathname } = useLocation();
 
-  const role = user?.role ?? "resident";
+  const role = user?.roles?.includes("moderator")
+    ? "moderator"
+    : user?.roles?.includes("admin") || user?.roles?.includes("platform_admin")
+      ? user?.roles?.includes("platform_admin")
+        ? "platform_admin"
+        : "admin"
+      : (user?.role ?? "resident");
 
   const nav =
     role === "resident"
@@ -102,7 +108,8 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     isActive={pathname === item.url}
-                    tooltip={item.title}>
+                    tooltip={item.title}
+                  >
                     <Link to={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
