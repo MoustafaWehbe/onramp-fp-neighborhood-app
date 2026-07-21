@@ -68,7 +68,7 @@ export function IssuePage() {
         <h2 className="text-xl font-semibold">{issue.title}</h2>
         <p className="text-muted-foreground">{issue.description}</p>
         <p className="text-sm text-muted-foreground">
-          {issue.neighborhood} · {issue.address} · reported by {issue.reporter}
+          {issue.neighborhood} · {issue.address}
         </p>
       </div>
 

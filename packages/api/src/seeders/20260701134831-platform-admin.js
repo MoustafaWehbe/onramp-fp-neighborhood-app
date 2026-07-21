@@ -12,7 +12,7 @@ module.exports = {
 
     if (!name || !email || !password) {
       throw new Error(
-        "Missing PLATFORM_ADMIN_NAME, PLATFORM_ADMIN_EMAIL, or PLATFORM_ADMIN_PASSWORD"
+        "Missing PLATFORM_ADMIN_NAME, PLATFORM_ADMIN_EMAIL, or PLATFORM_ADMIN_PASSWORD",
       );
     }
 
@@ -23,7 +23,7 @@ module.exports = {
       WHERE name = 'platform_admin'
       LIMIT 1
       `,
-      { type: queryInterface.sequelize.QueryTypes.SELECT }
+      { type: queryInterface.sequelize.QueryTypes.SELECT },
     );
 
     if (!platformAdminRole) {
@@ -40,7 +40,7 @@ module.exports = {
       {
         replacements: { email },
         type: queryInterface.sequelize.QueryTypes.SELECT,
-      }
+      },
     );
 
     let userId = existingUser?.id;
@@ -77,7 +77,7 @@ module.exports = {
             name,
           },
           type: queryInterface.sequelize.QueryTypes.INSERT,
-        }
+        },
       );
 
       userId = Array.isArray(createdUser)
@@ -110,7 +110,7 @@ module.exports = {
           userId,
           roleId: platformAdminRole.id,
         },
-      }
+      },
     );
   },
 
@@ -131,7 +131,7 @@ module.exports = {
       {
         replacements: { email },
         type: queryInterface.sequelize.QueryTypes.SELECT,
-      }
+      },
     );
 
     if (!existingUser) {
@@ -145,7 +145,7 @@ module.exports = {
       `,
       {
         replacements: { userId: existingUser.id },
-      }
+      },
     );
 
     await queryInterface.sequelize.query(
@@ -155,7 +155,7 @@ module.exports = {
       `,
       {
         replacements: { userId: existingUser.id },
-      }
+      },
     );
   },
 };
