@@ -64,13 +64,13 @@ export function AppSidebar() {
   const { user, logout } = useAuth();
   const { pathname } = useLocation();
 
-  const role = user?.roles?.includes("moderator")
-    ? "moderator"
-    : user?.roles?.includes("admin") || user?.roles?.includes("platform_admin")
-      ? user?.roles?.includes("platform_admin")
-        ? "platform_admin"
-        : "admin"
-      : (user?.role ?? "resident");
+  const role = user?.roles?.includes("platform_admin")
+    ? "platform_admin"
+    : user?.roles?.includes("admin")
+      ? "admin"
+      : user?.roles?.includes("moderator")
+        ? "moderator"
+        : (user?.role ?? "resident");
 
   const nav =
     role === "resident"
