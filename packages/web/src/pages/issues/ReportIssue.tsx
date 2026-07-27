@@ -14,7 +14,6 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { Sparkles, RefreshCw } from "lucide-react";
-import { aiSuggest } from "../../lib/mock-data";
 import { useNeighborhoods, useCategories } from "../../hooks/useReferenceData";
 
 export function ReportIssue() {
@@ -30,10 +29,12 @@ export function ReportIssue() {
   const [aiNote, setAiNote] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [aiConfirmed, setAiConfirmed] = useState(false);
 
   async function handleAnalyze() {
     if (!description.trim()) return;
     setAnalyzing(true);
+    setAiConfirmed(false); // ← add this line
     try {
       const res = await apiClient.post("/issues/ai-categorize", {
         description,
@@ -43,7 +44,11 @@ export function ReportIssue() {
       setCategory(suggestedCategory);
       setAiNote(routingNote);
     } catch {
-      setAiNote("Could not analyze — please select a category manually.");
+      setAiNote(null);
+      setAiConfirmed(false);
+      if (!category) {
+        alert("Could not analyze — please select a category manually.");
+      }
     } finally {
       setAnalyzing(false);
     }
@@ -133,41 +138,82 @@ export function ReportIssue() {
           </div>
 
           {/* smart routing */}
-          <div className="rounded-xl border border-border/60 bg-slate-50 p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-full bg-white border border-border/60 flex items-center justify-center">
-                <Sparkles className="h-4 w-4 text-accent" />
+          <div className="rounded-xl border border-border/60 bg-slate-50 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-full bg-white border border-border/60 flex items-center justify-center">
+                  <Sparkles className="h-4 w-4 text-accent" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">Smart routing</p>
+                  {aiNote ? (
+                    <p className="text-xs text-muted-foreground max-w-sm">
+                      {aiNote}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      Click{" "}
+                      <span className="font-semibold text-foreground">
+                        Analyze
+                      </span>{" "}
+                      and AI will suggest the best category and who handles it.
+                    </p>
+                  )}
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-semibold">Smart routing</p>
-                {aiNote ? (
-                  <p className="text-xs text-muted-foreground max-w-sm">
-                    {aiNote}
-                  </p>
-                ) : (
-                  <p className="text-xs text-muted-foreground">
-                    Click{" "}
-                    <span className="font-semibold text-foreground">
-                      Analyze
-                    </span>{" "}
-                    and AI will suggest the best category and who handles it.
-                  </p>
-                )}
-              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-sm"
+                onClick={handleAnalyze}
+                disabled={analyzing || !description.trim()}
+              >
+                <RefreshCw
+                  className={`h-3.5 w-3.5 ${analyzing ? "animate-spin" : ""}`}
+                />
+                {analyzing ? "Analyzing..." : "Analyze"}
+              </Button>
             </div>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="gap-1.5 text-sm"
-              onClick={handleAnalyze}
-              disabled={analyzing || !description.trim()}
-            >
-              <RefreshCw
-                className={`h-3.5 w-3.5 ${analyzing ? "animate-spin" : ""}`}
-              />
-              {analyzing ? "Analyzing..." : "Analyze"}
-            </Button>
+
+            {/* Confirm/Override step — only shown after AI suggests */}
+            {aiNote && !aiConfirmed && (
+              <div className="flex items-center gap-3 pt-1 border-t border-border/40">
+                <p className="text-xs text-muted-foreground flex-1">
+                  AI suggested:{" "}
+                  <span className="font-semibold text-foreground">
+                    {category}
+                  </span>
+                </p>
+                <Button
+                  type="button"
+                  size="sm"
+                  className="rounded-lg px-4"
+                  onClick={() => setAiConfirmed(true)}
+                >
+                  Confirm
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="rounded-lg px-4"
+                  onClick={() => {
+                    setAiConfirmed(false);
+                    setAiNote(null);
+                    setCategory("");
+                  }}
+                >
+                  Change
+                </Button>
+              </div>
+            )}
+
+            {aiConfirmed && (
+              <p className="text-xs text-green-600 pt-1 border-t border-border/40">
+                ✓ Category confirmed by AI
+              </p>
+            )}
           </div>
 
           {/* category + neighborhood */}
