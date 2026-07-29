@@ -104,7 +104,29 @@ export function IssuePage() {
           </Button>
         </div>
       )}
-
+      {/* Progress Log */}
+      {issue.progressLogs && issue.progressLogs.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="font-semibold">Status History</h3>
+          <div className="space-y-2">
+            {issue.progressLogs.map((log: any) => (
+              <div
+                key={log.id}
+                className="border-l-2 border-ocean-teal pl-3 py-1"
+              >
+                <p className="text-sm font-medium">
+                  {log.fromStatus} → {log.toStatus}
+                </p>
+                <p className="text-xs text-muted-foreground">{log.note}</p>
+                <p className="text-xs text-muted-foreground">
+                  {new Date(log.createdAt).toLocaleString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {/* comment section */}
       <CommentSection
         issue={issue}
         comments={comments}

@@ -43,11 +43,11 @@ export function CommentSection({
         <div key={comment.id} className="border-b border-border pb-3">
           <div className="flex items-center gap-2 text-sm">
             <span className="font-medium">
-              {comment.authorId === user?.id ? "You" : "community member"}
+              {comment.authorId === user?.id
+                ? "You"
+                : (comment.author?.name ?? "Community member")}
             </span>
-            {comment.authorId === user?.id ? (
-              <Badge variant="outline">You</Badge>
-            ) : null}
+
             <span className="text-muted-foreground">
               {timeAgo(comment.createdAt)}
             </span>

@@ -1,11 +1,17 @@
-import { Comment } from "@starter-kit/shared";
-import { Issue } from "@starter-kit/shared";
+import { Comment, Issue, User } from "@starter-kit/shared";
 
 export const commentsService = {
   async getByIssueId(issueId: string) {
     const comments = await Comment.findAll({
       where: { issueId },
       order: [["createdAt", "ASC"]],
+      include: [
+        {
+          model: User,
+          as: "author",
+          attributes: ["id", "name"],
+        },
+      ],
     });
     return comments;
   },
