@@ -21,6 +21,20 @@ router.get(
   adminController.getNeighborhoods
 );
 
+router.delete(
+  "/neighborhoods/:id",
+  authenticate,
+  authorize("admin", "platform_admin"),
+  adminController.deleteNeighborhood
+);
+
+router.delete(
+  "/categories/:id",
+  authenticate,
+  authorize("admin", "platform_admin"),
+  adminController.deleteCategory
+);
+
 router.post(
   "/neighborhoods",
   authenticate,

@@ -36,7 +36,7 @@ export function AdminUsers() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [roles, setRoles] = useState<AssignableRole[]>([]);
   const [selectedRoles, setSelectedRoles] = useState<Record<string, string>>(
-    {}
+    {},
   );
   const [isLoading, setIsLoading] = useState(true);
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
@@ -144,64 +144,69 @@ export function AdminUsers() {
               <p className="text-sm text-muted-foreground">No users found.</p>
             ) : (
               <div className="space-y-3">
-                {users.map((user) => {
-                  const isPlatformAdmin = user.role === "platform_admin";
-                  const selectedRole = selectedRoles[user.id] ?? user.role;
-                  const isUpdating = updatingUserId === user.id;
+                {users
+                  .filter((user) => user.role !== "platform_admin")
+                  .map((user) => {
+                    const isPlatformAdmin = user.role === "platform_admin";
+                    const selectedRole = selectedRoles[user.id] ?? user.role;
+                    const isUpdating = updatingUserId === user.id;
 
-                  return (
-                    <div
-                      key={user.id}
-                      className="flex flex-col gap-4 rounded-xl border border-border/60 p-4 md:flex-row md:items-center md:justify-between">
-                      <div className="min-w-0">
-                        <p className="font-medium text-foreground">
-                          {user.name}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {user.email}
-                        </p>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          Current role:{" "}
-                          <span className="font-medium">{user.role}</span>
-                        </p>
+                    return (
+                      <div
+                        key={user.id}
+                        className="flex flex-col gap-4 rounded-xl border border-border/60 p-4 md:flex-row md:items-center md:justify-between"
+                      >
+                        <div className="min-w-0">
+                          <p className="font-medium text-foreground">
+                            {user.name}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {user.email}
+                          </p>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Current role:{" "}
+                            <span className="font-medium">{user.role}</span>
+                          </p>
+                        </div>
+
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                          <Select
+                            value={selectedRole}
+                            onValueChange={(value) =>
+                              setSelectedRoles((current) => ({
+                                ...current,
+                                [user.id]: value,
+                              }))
+                            }
+                            disabled={isPlatformAdmin}
+                          >
+                            <SelectTrigger className="w-56">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {roles.map((role) => (
+                                <SelectItem key={role.value} value={role.value}>
+                                  {role.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+
+                          <Button
+                            type="button"
+                            disabled={
+                              isPlatformAdmin ||
+                              isUpdating ||
+                              selectedRole === user.role
+                            }
+                            onClick={() => updateRole(user.id)}
+                          >
+                            {isUpdating ? "Updating..." : "Update"}
+                          </Button>
+                        </div>
                       </div>
-
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                        <Select
-                          value={selectedRole}
-                          onValueChange={(value) =>
-                            setSelectedRoles((current) => ({
-                              ...current,
-                              [user.id]: value,
-                            }))
-                          }
-                          disabled={isPlatformAdmin}>
-                          <SelectTrigger className="w-56">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {roles.map((role) => (
-                              <SelectItem key={role.value} value={role.value}>
-                                {role.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-
-                        <Button
-                          type="button"
-                          disabled={
-                            isPlatformAdmin ||
-                            isUpdating ||
-                            selectedRole === user.role
-                          }
-                          onClick={() => updateRole(user.id)}>
-                          {isUpdating ? "Updating..." : "Update"}
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
               </div>
             )}
           </CardContent>

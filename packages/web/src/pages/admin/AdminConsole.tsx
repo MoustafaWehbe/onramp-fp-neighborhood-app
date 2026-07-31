@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+
 import {
   Card,
   CardContent,
@@ -79,13 +80,34 @@ export function AdminConsole() {
     try {
       setAddingNeighborhood(true);
       setError(null);
-      await apiClient.post("/admin/neighborhoods", { name: newNeighborhood.trim() });
+      await apiClient.post("/admin/neighborhoods", {
+        name: newNeighborhood.trim(),
+      });
       setNewNeighborhood("");
       await loadAll();
     } catch (err: any) {
       setError(err?.response?.data?.error || "Failed to add neighborhood.");
     } finally {
       setAddingNeighborhood(false);
+    }
+  }
+  async function handleDeleteNeighborhood(id: string) {
+    if (!confirm("Delete this neighborhood?")) return;
+    try {
+      await apiClient.delete(`/admin/neighborhoods/${id}`);
+      setNeighborhoods((prev) => prev.filter((n) => n.id !== id));
+    } catch {
+      alert("Failed to delete neighborhood.");
+    }
+  }
+
+  async function handleDeleteCategory(id: string) {
+    if (!confirm("Delete this category?")) return;
+    try {
+      await apiClient.delete(`/admin/categories/${id}`);
+      setCategories((prev) => prev.filter((c) => c.id !== id));
+    } catch {
+      alert("Failed to delete category.");
     }
   }
 
@@ -205,7 +227,9 @@ export function AdminConsole() {
               <MapPin className="h-5 w-5 text-primary" />
               <CardTitle>Neighborhoods</CardTitle>
             </div>
-            <CardDescription>Add new areas residents can report from.</CardDescription>
+            <CardDescription>
+              Add new areas residents can report from.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-2">
@@ -230,11 +254,23 @@ export function AdminConsole() {
               {loading ? (
                 <p className="text-sm text-muted-foreground">Loading...</p>
               ) : neighborhoods.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No neighborhoods yet.</p>
+                <p className="text-sm text-muted-foreground">
+                  No neighborhoods yet.
+                </p>
               ) : (
                 neighborhoods.map((n) => (
-                  <Badge key={n.id} variant="secondary" className="rounded-full px-3 py-1">
+                  <Badge
+                    key={n.id}
+                    variant="secondary"
+                    className="rounded-full px-3 py-1 flex items-center gap-1"
+                  >
                     {n.name}
+                    <button
+                      onClick={() => handleDeleteNeighborhood(n.id)}
+                      className="ml-1 hover:text-red-500"
+                    >
+                      ×
+                    </button>
                   </Badge>
                 ))
               )}
@@ -248,7 +284,9 @@ export function AdminConsole() {
               <Tag className="h-5 w-5 text-primary" />
               <CardTitle>Category tags</CardTitle>
             </div>
-            <CardDescription>Official categories the AI will choose from.</CardDescription>
+            <CardDescription>
+              Official categories the AI will choose from.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-2">
@@ -273,11 +311,23 @@ export function AdminConsole() {
               {loading ? (
                 <p className="text-sm text-muted-foreground">Loading...</p>
               ) : categories.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No categories yet.</p>
+                <p className="text-sm text-muted-foreground">
+                  No categories yet.
+                </p>
               ) : (
                 categories.map((c) => (
-                  <Badge key={c.id} variant="secondary" className="rounded-full px-3 py-1">
+                  <Badge
+                    key={c.id}
+                    variant="secondary"
+                    className="rounded-full px-3 py-1 flex items-center gap-1"
+                  >
                     {c.name}
+                    <button
+                      onClick={() => handleDeleteCategory(c.id)}
+                      className="ml-1 hover:text-red-500"
+                    >
+                      ×
+                    </button>
                   </Badge>
                 ))
               )}
@@ -299,7 +349,9 @@ export function AdminConsole() {
                 <Link to="/admin/users">Manage roles</Link>
               </Button>
             </div>
-            <CardDescription>Residents and reps active on the platform.</CardDescription>
+            <CardDescription>
+              Residents and reps active on the platform.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -308,20 +360,28 @@ export function AdminConsole() {
               <p className="text-sm text-muted-foreground">No users found.</p>
             ) : (
               <div className="space-y-2">
-                {users.map((u) => (
-                  <div
-                    key={u.id}
-                    className="flex items-center justify-between rounded-xl border border-border/60 p-3"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{u.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                {users
+                  .filter((u) => u.id !== user?.id)
+                  .filter((u) => u.role !== "platform_admin")
+
+                  .map((u) => (
+                    <div
+                      key={u.id}
+                      className="flex items-center justify-between rounded-xl border border-border/60 p-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {u.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {u.email}
+                        </p>
+                      </div>
+                      <Badge variant="outline" className="shrink-0 capitalize">
+                        {u.role.replace("_", " ")}
+                      </Badge>
                     </div>
-                    <Badge variant="outline" className="shrink-0 capitalize">
-                      {u.role.replace("_", " ")}
-                    </Badge>
-                  </div>
-                ))}
+                  ))}
               </div>
             )}
           </CardContent>
