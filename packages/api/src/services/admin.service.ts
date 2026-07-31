@@ -62,6 +62,16 @@ export const adminService = {
     });
   },
 
+  async deleteNeighborhood(id: string) {
+  const { Neighborhood } = await import("@starter-kit/shared");
+  await Neighborhood.destroy({ where: { id } });
+},
+
+async deleteCategory(id: string) {
+  const { Category } = await import("@starter-kit/shared");
+  await Category.destroy({ where: { id } });
+},
+
   async getCategories() {
     return Category.findAll({ order: [["name", "ASC"]] });
   },

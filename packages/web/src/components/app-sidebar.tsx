@@ -89,7 +89,7 @@ export function AppSidebar() {
 
           <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
             <span className="font-display text-base font-semibold text-sidebar-foreground">
-              CivicWave
+              OnRamp
             </span>
             <span className="text-xs text-sidebar-foreground/60">
               Community tracker

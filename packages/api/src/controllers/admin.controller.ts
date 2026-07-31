@@ -77,6 +77,26 @@ export const adminController = {
     }
   },
 
+  async deleteNeighborhood(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    const id = req.params.id as string;
+    await adminService.deleteNeighborhood(id);
+    res.status(200).json({ data: { message: "Neighborhood deleted" } });
+  } catch (err) {
+    next(err);
+  }
+},
+
+async deleteCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+   const id = req.params.id as string;
+    await adminService.deleteCategory(id);
+    res.status(200).json({ data: { message: "Category deleted" } });
+  } catch (err) {
+    next(err);
+  }
+},
+
   async updateUserRole(
     req: Request,
     res: Response,

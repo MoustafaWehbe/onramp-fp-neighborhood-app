@@ -3,18 +3,22 @@ import { getAIClient } from "./client";
 export async function generateEmbedding(text: string): Promise<number[]> {
   const client = getAIClient();
   const response = await client.embeddings.create({
-    model: "text-embedding-3-small",
+    model: "nvidia/nv-embedqa-e5-v5",
     input: text,
-  });
+    input_type: "query",
+    encoding_format: "float",
+  } as any);
   return response.data[0]?.embedding ?? [];
 }
 
 export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
   const client = getAIClient();
   const response = await client.embeddings.create({
-    model: "text-embedding-3-small",
+    model: "nvidia/nv-embedqa-e5-v5",
     input: texts,
-  });
+    input_type: "passage",
+    encoding_format: "float",
+  } as any);
   return response.data.map((d) => d.embedding);
 }
 

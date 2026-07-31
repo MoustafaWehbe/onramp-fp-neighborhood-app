@@ -29,7 +29,7 @@ import {
   X,
 } from "lucide-react";
 import { type Status } from "../../lib/mock-data";
-import { useIssues } from "../../hooks/useIssues";
+import { useIssues, useSearch } from "../../hooks/useIssues";
 import { useNeighborhoods, useCategories } from "../../hooks/useReferenceData";
 import { Badge } from "../../components/ui/badge";
 
@@ -55,6 +55,9 @@ export function Feed() {
   const [activeNeighborhood, setActiveNeighborhood] = useState<string>("All");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [showFilters, setShowFilters] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const { results: searchResults, loading: searchLoading, doSearch, clear } = useSearch();
 
   const activeFilterCount = [
     activeNeighborhood !== "All",
@@ -79,6 +82,9 @@ export function Feed() {
     );
   });
 
+  // When searching semantically, show those results; otherwise show filtered
+  const displayIssues =  filtered;
+
   const openCount = issues.filter(
     (i) => i.status === "Reported" || i.status === "Acknowledged",
   ).length;
@@ -86,6 +92,12 @@ export function Feed() {
     (i) => i.status === "In Progress",
   ).length;
   const resolvedCount = issues.filter((i) => i.status === "Resolved").length;
+
+  function handleSearchChange(value: string) {
+  setSearch(value);
+  setIsSearching(false);
+  clear();
+}
 
   return (
     <div className="flex flex-col h-full">
@@ -174,7 +186,7 @@ export function Feed() {
             placeholder="Search issues..."
             className="pl-9"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
 
@@ -197,7 +209,7 @@ export function Feed() {
         </Button>
       </div>
 
-      {/* filter panel — toggled open/closed, independent of the search bar */}
+      {/* filter panel */}
       {showFilters && (
         <div className="px-6 pb-3 flex items-center gap-3 flex-wrap">
           <Select
@@ -312,10 +324,14 @@ export function Feed() {
         </div>
       )}
 
-      {/* results */}
+      {/* results count */}
       <div className="px-6 py-1">
         <p className="text-xs text-muted-foreground">
-          {loading
+          {isSearching && searchLoading
+            ? "Searching..."
+            : isSearching
+            ? `${searchResults.length} result${searchResults.length !== 1 ? "s" : ""} found`
+            : loading
             ? "Loading..."
             : `${filtered.length} issue${filtered.length !== 1 ? "s" : ""} found`}
         </p>
@@ -326,12 +342,12 @@ export function Feed() {
           {error && (
             <p className="text-sm text-red-500 text-center py-8">{error}</p>
           )}
-          {loading && (
+          {(loading || (isSearching && searchLoading)) && (
             <p className="text-sm text-muted-foreground text-center py-8">
               Loading issues...
             </p>
           )}
-          {!loading && !error && filtered.length === 0 && (
+          {!loading && !searchLoading && !error && displayIssues.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <p className="text-sm font-medium text-muted-foreground">
                 No issues found
@@ -343,8 +359,8 @@ export function Feed() {
           )}
           {!loading &&
             !error &&
-            filtered.map((issue) => (
-              <IssueCard key={issue.id} issue={issue} />
+            displayIssues.map((issue) => (
+              <IssueCard key={issue.id} issue={issue as any} />
             ))}
         </div>
       </div>
