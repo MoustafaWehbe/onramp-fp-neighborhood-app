@@ -258,7 +258,8 @@ export function Feed() {
                 {dateRange?.from ? (
                   dateRange.to ? (
                     <>
-                      {formatShort(dateRange.from)} – {formatShort(dateRange.to)}
+                      {formatShort(dateRange.from)} –{" "}
+                      {formatShort(dateRange.to)}
                     </>
                   ) : (
                     formatShort(dateRange.from)
@@ -343,9 +344,7 @@ export function Feed() {
           )}
           {!loading &&
             !error &&
-            filtered.map((issue) => (
-              <IssueCard key={issue.id} issue={issue} />
-            ))}
+            filtered.map((issue) => <IssueCard key={issue.id} issue={issue} />)}
         </div>
       </div>
     </div>

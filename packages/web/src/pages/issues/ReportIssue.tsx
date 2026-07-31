@@ -34,7 +34,7 @@ export function ReportIssue() {
   async function handleAnalyze() {
     if (!description.trim()) return;
     setAnalyzing(true);
-    setAiConfirmed(false); // ← add this line
+    setAiConfirmed(false);
     try {
       const res = await apiClient.post("/issues/ai-categorize", {
         description,
