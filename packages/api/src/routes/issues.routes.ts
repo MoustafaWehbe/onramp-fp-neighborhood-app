@@ -13,6 +13,8 @@ router.get("/", issuesController.getAll);
 
 router.post("/ai-categorize", issuesController.categorize);
 
+router.get("/search", issuesController.search);
+
 // GET /api/issues/:id — anyone logged in can view one issue
 router.get("/:id", issuesController.getById);
 

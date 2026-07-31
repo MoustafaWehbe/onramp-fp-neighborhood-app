@@ -165,3 +165,34 @@ export interface ApiComment {
   body: string;
   createdAt: string;
 }
+
+export function useSearch() {
+  const [results, setResults] = useState<ApiIssue[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function doSearch(query: string) {
+    if (!query.trim()) {
+      setResults([]);
+      return;
+    }
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await apiClient.get(`/issues/search?q=${encodeURIComponent(query)}`);
+      setResults(res.data.data);
+    } catch {
+      setError("Search failed");
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function clear() {
+    setResults([]);
+    setError(null);
+  }
+
+  return { results, loading, error, doSearch, clear };
+}

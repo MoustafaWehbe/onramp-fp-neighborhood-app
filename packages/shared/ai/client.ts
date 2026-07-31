@@ -8,7 +8,10 @@ export function getAIClient(): OpenAI {
     if (!apiKey) {
       throw new Error("OPENAI_API_KEY is not configured");
     }
-    openaiClient = new OpenAI({ apiKey });
+    openaiClient = new OpenAI({ 
+      apiKey,
+      baseURL: process.env.OPENAI_BASE_URL ?? "https://api.openai.com/v1"
+    });
   }
   return openaiClient;
 }
@@ -19,7 +22,7 @@ export async function chatCompletion(
 ): Promise<string> {
   const client = getAIClient();
   const response = await client.chat.completions.create({
-    model: options?.model ?? "gpt-4o-mini",
+    model: options?.model ?? "meta/llama-3.1-8b-instruct",
     messages,
     ...options,
   });

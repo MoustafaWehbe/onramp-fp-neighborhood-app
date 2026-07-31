@@ -1,8 +1,8 @@
 import { Op } from "sequelize";
 import { Issue } from "@starter-kit/shared";
 import { ProgressLog } from "@starter-kit/shared";
-import {chatCompletion} from "../lib/ai"
-import {embeddingsQueue} from "@starter-kit/shared"
+import { chatCompletion, generateEmbedding } from "../lib/ai";
+import { embeddingsQueue } from "@starter-kit/shared";
 export const VALID_STATUSES = [
   "Reported",
   "Acknowledged",
@@ -109,6 +109,31 @@ export const issuesService = {
     return issue;
   },
 
+  async search(query: string, limit = 10) {
+    const queryEmbedding = await generateEmbedding(query);
+
+    const results = await Issue.sequelize!.query(
+      `SELECT id, title, description, category, neighborhood, 
+          address, status, reported_by_id as "reportedById", 
+          ai_routing_note as "aiRoutingNote",
+          created_at as "createdAt", updated_at as "updatedAt",
+          1 - (embedding <=> :embedding::vector) AS similarity
+   FROM issues
+   WHERE embedding IS NOT NULL
+   ORDER BY embedding <=> :embedding::vector
+   LIMIT :limit`,
+      {
+        replacements: {
+          embedding: `[${queryEmbedding.join(",")}]`,
+          limit,
+        },
+        type: "SELECT" as any,
+      },
+    );
+
+    return results;
+  },
+
   async updateStatus(
     issueId: string,
     newStatus: string,
@@ -148,7 +173,7 @@ export const issuesService = {
   },
 
   async categorize(description: string, categories: string[]) {
-  const prompt = `You are a municipal issue classifier for a community platform.
+    const prompt = `You are a municipal issue classifier for a community platform.
 A resident has submitted the following issue description:
 
 "${description}"
@@ -163,22 +188,20 @@ Return ONLY a valid JSON object with exactly these two fields:
 
 Do not include any explanation, markdown, or extra text. JSON only.`;
 
-  const response = await chatCompletion([
-    { role: "user", content: prompt }
-  ]);
+    const response = await chatCompletion([{ role: "user", content: prompt }]);
 
-  try {
-    const parsed = JSON.parse(response);
-    return {
-      suggestedCategory: parsed.suggestedCategory,
-      routingNote: parsed.routingNote,
-    };
-  } catch {
-    return {
-      suggestedCategory: categories[0],
-      routingNote: "This issue has been routed to the appropriate department.",
-    };
-  }
-},
+    try {
+      const parsed = JSON.parse(response);
+      return {
+        suggestedCategory: parsed.suggestedCategory,
+        routingNote: parsed.routingNote,
+      };
+    } catch {
+      return {
+        suggestedCategory: categories[0],
+        routingNote:
+          "This issue has been routed to the appropriate department.",
+      };
+    }
+  },
 };
-
