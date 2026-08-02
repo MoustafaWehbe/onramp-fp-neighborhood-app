@@ -12,6 +12,9 @@ export interface ApiIssue {
   reportedById: string;
   aiRoutingNote?: string | null;
   createdAt: string;
+  comments?: {
+    id: string;
+  }[];
   progressLogs?: {
     id: string;
     fromStatus: string;
@@ -45,7 +48,8 @@ export function useIssues(filters: UseIssuesFilters = {}) {
     try {
       setLoading(true);
       const params = new URLSearchParams();
-      if (filters.neighborhood) params.set("neighborhood", filters.neighborhood);
+      if (filters.neighborhood)
+        params.set("neighborhood", filters.neighborhood);
       if (filters.status) params.set("status", filters.status);
       if (filters.category) params.set("category", filters.category);
       if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
@@ -101,7 +105,9 @@ export function useIssue(id: string | undefined) {
       }
     }
     fetchIssue();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [id]);
 
   return { issue, loading, error };
@@ -149,7 +155,9 @@ export function useComments(issueId: string | undefined) {
       }
     }
     fetch();
-    return () => { ignore = true; };
+    return () => {
+      ignore = true;
+    };
   }, [issueId]);
 
   function refetch() {
@@ -172,7 +180,9 @@ export function useSearch() {
     try {
       setLoading(true);
       setError(null);
-      const res = await apiClient.get(`/issues/search?q=${encodeURIComponent(query)}`);
+      const res = await apiClient.get(
+        `/issues/search?q=${encodeURIComponent(query)}`,
+      );
       setResults(res.data.data);
     } catch {
       setError("Search failed");
