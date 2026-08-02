@@ -9,7 +9,7 @@ import { Settings } from "../pages/dashboard/Settings";
 import { NotFound } from "../pages/NotFound";
 
 import { ReportIssue } from "../pages/issues/ReportIssue";
-import { WorkerWorkspace } from "../pages/issues/WorkerWorkspace";
+import { WorkerWorkspace } from "../pages/issues/AuthorityWorkspace";
 import { Feed } from "../pages/feed/Feed";
 import { MyReports } from "../pages/feed/MyReports";
 import { IssuePage } from "../pages/feed/IssuePage";

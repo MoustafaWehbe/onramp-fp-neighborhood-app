@@ -32,13 +32,13 @@ const residentNav = [
 
 const authorityNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
-  { title: "Worker Workspace", url: "/worker-workspace", icon: ClipboardList },
+  { title: "Authority Workspace", url: "/worker-workspace", icon: ClipboardList },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 const adminNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
-  { title: "Worker Workspace", url: "/worker-workspace", icon: ClipboardList },
+  { title: "Authority Workspace", url: "/worker-workspace", icon: ClipboardList },
   { title: "Admin Console", url: "/admin", icon: ShieldAlert },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
@@ -126,7 +126,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <div className="flex items-center gap-2 px-2 py-1.5 text-sm text-sidebar-foreground/80 group-data-[collapsible=icon]:hidden">
               <MapPin className="h-4 w-4 text-sidebar-primary" />
-              <span>All neighborhoods</span>
+              <span>{user?.assignedNeighborhood ?? "All neighborhoods"}</span>
             </div>
           </SidebarGroupContent>
         </SidebarGroup>

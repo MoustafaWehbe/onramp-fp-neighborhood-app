@@ -5,6 +5,7 @@ export interface UserAttributes {
   email: string;
   passwordHash: string | null;
   name: string;
+  assignedNeighborhood?: string | null;
   googleId?: string | null;
   avatarUrl?: string | null;
   emailVerified: boolean;
@@ -25,6 +26,7 @@ export class User
   declare email: string;
   declare passwordHash: string | null;
   declare name: string;
+  declare assignedNeighborhood: string | null;
   declare googleId: string | null;
   declare avatarUrl: string | null;
   declare emailVerified: boolean;
@@ -53,6 +55,11 @@ export class User
           type: DataTypes.STRING(255),
           allowNull: false,
         },
+        assignedNeighborhood: {
+          type: DataTypes.STRING,
+          allowNull: true,
+          field: "assigned_neighborhood",
+        },
         googleId: {
           type: DataTypes.STRING,
           allowNull: true,
@@ -75,7 +82,7 @@ export class User
         tableName: "users",
         timestamps: true,
         underscored: true,
-      }
+      },
     );
 
     return User;

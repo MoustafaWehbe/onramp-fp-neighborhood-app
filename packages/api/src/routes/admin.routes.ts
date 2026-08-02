@@ -80,4 +80,11 @@ router.get(
   adminController.getUsers
 );
 
+router.patch(
+  "/users/:id/neighborhood",
+  authenticate,
+  authorize("admin", "platform_admin"),
+  adminController.assignNeighborhood
+);
+
 export { router as adminRouter };

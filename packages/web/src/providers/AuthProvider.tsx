@@ -13,6 +13,7 @@ interface AuthUser {
   name: string;
   role: string;
   roles: string[];
+  assignedNeighborhood?: string | null;
 }
 
 interface AuthContextValue {
@@ -63,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
-      {children}
+      {isLoading ? null : children}
     </AuthContext.Provider>
   );
 }

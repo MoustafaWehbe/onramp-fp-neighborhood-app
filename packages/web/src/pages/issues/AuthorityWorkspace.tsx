@@ -1,19 +1,44 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Badge } from "../../components/ui/badge";
 import { statusColor } from "../../lib/mock-data";
+import { apiClient } from "@/lib/api-client";
 import { useIssues } from "../../hooks/useIssues";
 
 export function WorkerWorkspace() {
-  const { issues, loading, error } = useIssues();
+  const [neighborhood, setNeighborhood] = useState<string | null | undefined>(
+    undefined,
+  );
+
+  useEffect(() => {
+    apiClient
+      .get("/auth/me")
+      .then((res) => {
+        setNeighborhood(res.data.data.assignedNeighborhood ?? null);
+      })
+      .catch(() => {
+        setNeighborhood(null);
+      });
+  }, []);
+
+  const { issues, loading, error } = useIssues(
+    neighborhood === undefined
+      ? { enabled: false }
+      : neighborhood
+        ? { neighborhood }
+        : {},
+  );
 
   return (
     <div className="p-6 space-y-4">
-      <h2 className="text-xl font-semibold">Worker Workspace</h2>
+      
       <p className="text-sm text-muted-foreground">
-        All reported issues across neighborhoods
+        {neighborhood
+          ? `Issues in: ${neighborhood}`
+          : "All reported issues across neighborhoods"}
       </p>
 
-      {loading && (
+      {(loading || neighborhood === undefined) && (
         <p className="text-sm text-muted-foreground">Loading issues...</p>
       )}
 
@@ -21,6 +46,7 @@ export function WorkerWorkspace() {
 
       <div className="space-y-2">
         {!loading &&
+          neighborhood !== undefined &&
           !error &&
           issues.map((issue) => (
             <Link
@@ -40,11 +66,14 @@ export function WorkerWorkspace() {
             </Link>
           ))}
 
-        {!loading && !error && issues.length === 0 && (
-          <p className="text-sm text-muted-foreground">
-            No issues reported yet.
-          </p>
-        )}
+        {!loading &&
+          neighborhood !== undefined &&
+          !error &&
+          issues.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              No issues reported yet.
+            </p>
+          )}
       </div>
     </div>
   );
