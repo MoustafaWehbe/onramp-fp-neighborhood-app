@@ -118,8 +118,8 @@ export function AdminUsers() {
               <CardTitle>Users</CardTitle>
             </div>
             <CardDescription>
-              Platform admins can manage admins, workers, and residents. Admins
-              can manage workers and residents only.
+              Platform admins can manage all roles. Admins can manage authority
+              representatives and residents only.
             </CardDescription>
           </CardHeader>
 

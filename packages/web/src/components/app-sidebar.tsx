@@ -32,13 +32,13 @@ const residentNav = [
 
 const authorityNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
-  { title: "Worker Workspace", url: "/worker-workspace", icon: ClipboardList },
+  { title: "Authority Workspace", url: "/worker-workspace", icon: ClipboardList },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 const adminNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
-  { title: "Worker Workspace", url: "/worker-workspace", icon: ClipboardList },
+  { title: "Authority Workspace", url: "/worker-workspace", icon: ClipboardList },
   { title: "Admin Console", url: "/admin", icon: ShieldAlert },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
