@@ -35,7 +35,7 @@ function TopBar() {
       : pathname === "/my-reports"
         ? "My Reports"
         : pathname === "/worker-workspace"
-          ? "Worker Workspace"
+          ? "Authority Workspace"
           : pathname === "/settings"
             ? "Settings"
             : pathname === "/admin"

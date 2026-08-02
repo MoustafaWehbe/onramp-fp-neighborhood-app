@@ -60,7 +60,7 @@ export class AuthService {
     }
 
     const roles = ((user as unknown as { roles?: Role[] }).roles ?? []).map(
-      (role) => role.name as AuthRole
+      (role) => role.name as AuthRole,
     );
 
     return roles;
@@ -158,7 +158,7 @@ export class AuthService {
     const googleClient = new OAuth2Client(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
-      process.env.GOOGLE_CALLBACK_URL
+      process.env.GOOGLE_CALLBACK_URL,
     );
 
     const { tokens } = await googleClient.getToken(input.code);
@@ -288,14 +288,21 @@ export class AuthService {
   async logout(sessionId: string) {
     await RefreshToken.update(
       { revokedAt: new Date() },
-      { where: { sessionId } }
+      { where: { sessionId } },
     );
     await Session.destroy({ where: { id: sessionId } });
   }
 
   async getProfile(userId: string) {
     const user = await User.findByPk(userId, {
-      attributes: ["id", "email", "name", "emailVerified", "createdAt"],
+      attributes: [
+        "id",
+        "email",
+        "name",
+        "emailVerified",
+        "createdAt",
+        "assignedNeighborhood",
+      ],
     });
 
     if (!user) throw createError("User not found", 404);
@@ -311,6 +318,7 @@ export class AuthService {
       createdAt: user.createdAt,
       role,
       roles,
+      assignedNeighborhood: user.assignedNeighborhood ?? null,
     };
   }
 }

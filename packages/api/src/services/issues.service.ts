@@ -64,7 +64,10 @@ export const issuesService = {
       limit,
       offset,
       order: [["createdAt", "DESC"]],
-      include: [{ model: ProgressLog, as: "progressLogs" }],
+      include: [
+        { model: ProgressLog, as: "progressLogs" },
+        { model: Comment, as: "comments", attributes: ["id"] },
+      ],
       distinct: true,
     }); //limit and offset handle pagination — if there are 100 issues and you want page 2 with 20 per page, offset = 20 means "skip the first 20."
 

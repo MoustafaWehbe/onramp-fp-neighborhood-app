@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { apiClient } from "../lib/api-client";
 
 export interface ApiIssue {
@@ -12,7 +12,6 @@ export interface ApiIssue {
   reportedById: string;
   aiRoutingNote?: string | null;
   createdAt: string;
-  comments?: { id: string }[];
   progressLogs?: {
     id: string;
     fromStatus: string;
@@ -20,6 +19,7 @@ export interface ApiIssue {
     note: string;
     createdAt: string;
   }[];
+  comments?: { id: string }[];
 }
 
 interface UseIssuesFilters {
@@ -29,6 +29,7 @@ interface UseIssuesFilters {
   page?: number;
   dateFrom?: string;
   dateTo?: string;
+  enabled?: boolean;
 }
 
 export function useIssues(filters: UseIssuesFilters = {}) {
@@ -37,38 +38,30 @@ export function useIssues(filters: UseIssuesFilters = {}) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let ignore = false;
-    async function fetchIssues() {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams();
-        if (filters.neighborhood)
-          params.set("neighborhood", filters.neighborhood);
-        if (filters.status) params.set("status", filters.status);
-        if (filters.category) params.set("category", filters.category);
-        if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
-        if (filters.dateTo) params.set("dateTo", filters.dateTo);
-        if (filters.page) params.set("page", String(filters.page));
-        if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
-        if (filters.dateTo) params.set("dateTo", filters.dateTo);
-
-        const res = await apiClient.get(`/issues?${params.toString()}`);
-        if (!ignore) {
-          setIssues(res.data.data.issues);
-          setTotal(res.data.data.total);
-          setError(null);
-        }
-      } catch {
-        if (!ignore) setError("Failed to load issues");
-      } finally {
-        if (!ignore) setLoading(false);
-      }
+  const fetchIssues = useCallback(async () => {
+    if (filters.enabled === false) {
+      setLoading(false);
+      return;
     }
-    fetchIssues();
-    return () => {
-      ignore = true;
-    };
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (filters.neighborhood) params.set("neighborhood", filters.neighborhood);
+      if (filters.status) params.set("status", filters.status);
+      if (filters.category) params.set("category", filters.category);
+      if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
+      if (filters.dateTo) params.set("dateTo", filters.dateTo);
+      if (filters.page) params.set("page", String(filters.page));
+
+      const res = await apiClient.get(`/issues?${params.toString()}`);
+      setIssues(res.data.data.issues);
+      setTotal(res.data.data.total);
+      setError(null);
+    } catch {
+      setError("Failed to load issues");
+    } finally {
+      setLoading(false);
+    }
   }, [
     filters.neighborhood,
     filters.status,
@@ -76,11 +69,14 @@ export function useIssues(filters: UseIssuesFilters = {}) {
     filters.dateFrom,
     filters.dateTo,
     filters.page,
-    filters.dateFrom,
-    filters.dateTo,
+    filters.enabled,
   ]);
 
-  return { issues, total, loading, error };
+  useEffect(() => {
+    fetchIssues();
+  }, [fetchIssues]);
+
+  return { issues, total, loading, error, refetch: fetchIssues };
 }
 
 export function useIssue(id: string | undefined) {
@@ -106,12 +102,19 @@ export function useIssue(id: string | undefined) {
       }
     }
     fetchIssue();
-    return () => {
-      ignore = true;
-    };
+    return () => { ignore = true; };
   }, [id]);
 
   return { issue, loading, error };
+}
+
+export interface ApiComment {
+  id: string;
+  issueId: string;
+  authorId: string;
+  body: string;
+  createdAt: string;
+  author?: { id: string; name: string };
 }
 
 export function useComments(issueId: string | undefined) {
@@ -147,9 +150,7 @@ export function useComments(issueId: string | undefined) {
       }
     }
     fetch();
-    return () => {
-      ignore = true;
-    };
+    return () => { ignore = true; };
   }, [issueId]);
 
   function refetch() {
@@ -157,14 +158,6 @@ export function useComments(issueId: string | undefined) {
   }
 
   return { comments, loading, refetch };
-}
-
-export interface ApiComment {
-  id: string;
-  issueId: string;
-  authorId: string;
-  body: string;
-  createdAt: string;
 }
 
 export function useSearch() {
@@ -180,9 +173,7 @@ export function useSearch() {
     try {
       setLoading(true);
       setError(null);
-      const res = await apiClient.get(
-        `/issues/search?q=${encodeURIComponent(query)}`,
-      );
+      const res = await apiClient.get(`/issues/search?q=${encodeURIComponent(query)}`);
       setResults(res.data.data);
     } catch {
       setError("Search failed");
