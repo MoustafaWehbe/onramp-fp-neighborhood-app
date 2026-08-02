@@ -12,6 +12,7 @@ export interface ApiIssue {
   reportedById: string;
   aiRoutingNote?: string | null;
   createdAt: string;
+  comments?: { id: string }[];
   progressLogs?: {
     id: string;
     fromStatus: string;
@@ -76,7 +77,7 @@ export function useIssues(filters: UseIssuesFilters = {}) {
     filters.dateTo,
     filters.page,
     filters.dateFrom,
-    filters.dateTo
+    filters.dateTo,
   ]);
 
   return { issues, total, loading, error };
@@ -179,7 +180,9 @@ export function useSearch() {
     try {
       setLoading(true);
       setError(null);
-      const res = await apiClient.get(`/issues/search?q=${encodeURIComponent(query)}`);
+      const res = await apiClient.get(
+        `/issues/search?q=${encodeURIComponent(query)}`,
+      );
       setResults(res.data.data);
     } catch {
       setError("Search failed");

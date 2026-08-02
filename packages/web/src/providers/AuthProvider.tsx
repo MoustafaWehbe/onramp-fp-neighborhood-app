@@ -13,6 +13,7 @@ interface AuthUser {
   name: string;
   role: string;
   roles: string[];
+  assignedNeighborhood?: string | null;
 }
 
 interface AuthContextValue {

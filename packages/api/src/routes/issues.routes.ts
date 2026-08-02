@@ -27,6 +27,7 @@ router.patch(
   authorize("moderator"),
   issuesController.updateStatus,
 );
+router.delete("/:id", issuesController.deleteIssue);
 
 // Comments routes
 // GET /api/issues/:id/comments — anyone logged in can view comments for an issue

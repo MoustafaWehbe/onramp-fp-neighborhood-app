@@ -91,6 +91,26 @@ export const issuesController = {
     }
   },
 
+  async deleteIssue(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const id = req.params.id as string;
+    const userId = req.user!.userId;
+    const userRoles = req.user!.roles ?? [req.user!.role];
+    await issuesService.deleteIssue(id, userId, userRoles);
+    res.status(200).json({ data: { message: "Issue deleted" } });
+  } catch (err: any) {
+    if (err.message === "Not authorized to delete this issue") {
+      res.status(403).json({ error: err.message });
+      return;
+    }
+    next(err);
+  }
+},
+
   async categorize(
     req: Request,
     res: Response,

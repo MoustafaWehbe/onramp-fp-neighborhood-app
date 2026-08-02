@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { Issue } from "@starter-kit/shared";
+import { Comment, Issue } from "@starter-kit/shared";
 import { ProgressLog } from "@starter-kit/shared";
 import { chatCompletion, generateEmbedding } from "../lib/ai";
 import { embeddingsQueue } from "@starter-kit/shared";
@@ -74,7 +74,10 @@ export const issuesService = {
   async getById(id: string) {
     const issue = await Issue.findByPk(id, {
       //find by primary key
-      include: [{ model: ProgressLog, as: "progressLogs" }], //It tells Sequelize when you fetch an issue, also fetch all its progress logs in the same query.
+      include: [
+  { model: ProgressLog, as: "progressLogs" },
+  { model: Comment, as: "comments", attributes: ["id"] },
+], 
     });
     return issue;
   },
@@ -171,6 +174,21 @@ export const issuesService = {
       return issue;
     });
   },
+
+  async deleteIssue(issueId: string, userId: string, userRoles: string[]) {
+  const issue = await Issue.findByPk(issueId);
+  if (!issue) throw new Error("Issue not found");
+
+  const isAdmin = userRoles.includes("platform_admin") || userRoles.includes("admin");
+  const isModerator = userRoles.includes("moderator");
+  const isReporter = issue.reportedById === userId;
+
+  if (!isAdmin && !isModerator && !isReporter) {
+    throw new Error("Not authorized to delete this issue");
+  }
+
+  await issue.destroy();
+},
 
   async categorize(description: string, categories: string[]) {
     const prompt = `You are a municipal issue classifier for a community platform.
