@@ -34,7 +34,7 @@ router.delete("/:id", issuesController.deleteIssue);
 router.get("/:id/comments", commentsController.getByIssueId);
 router.post(
   "/:id/comments",
-  authorize("resident", "moderator"),
+  authorize("resident", "moderator", "admin", "platform_admin"),
   commentsController.create,
 );
 

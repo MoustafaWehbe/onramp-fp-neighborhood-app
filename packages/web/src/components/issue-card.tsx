@@ -15,22 +15,26 @@ const categoryColors: Record<string, string> = {
   Safety: "bg-red-50 text-red-700 border-red-200",
 };
 
+const statusDot: Record<string, string> = {
+  Reported: "bg-status-reported",
+  Acknowledged: "bg-status-acknowledged",
+  "In Progress": "bg-status-progress",
+  Resolved: "bg-status-resolved",
+};
+
 export function IssueCard({ issue }: { issue: ApiIssue }) {
-  const categoryStyle = categoryColors[issue.category] ?? "bg-muted/70 text-foreground/70";
+  const categoryStyle =
+    categoryColors[issue.category] ?? "bg-muted/70 text-foreground/70";
+  const dotColor = statusDot[issue.status] ?? "bg-muted";
 
   return (
     <Card className="group relative overflow-hidden border-border/70 transition-all hover:border-ocean-teal/40 hover:shadow-lift">
       <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-ocean opacity-0 transition-opacity group-hover:opacity-100" />
       <div className="flex gap-4 p-5">
 
-        {/* Left column - status indicator */}
-        <div className="flex flex-col items-center gap-1 pt-1 shrink-0">
-          <div className={`h-2.5 w-2.5 rounded-full ${
-            issue.status === "Resolved" ? "bg-green-500" :
-            issue.status === "In Progress" ? "bg-blue-500" :
-            issue.status === "Acknowledged" ? "bg-yellow-500" :
-            "bg-orange-400"
-          }`} />
+        {/* Status dot — matches badge color */}
+        <div className="flex flex-col items-center pt-2 shrink-0">
+          <div className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
         </div>
 
         {/* Main content */}
@@ -39,10 +43,7 @@ export function IssueCard({ issue }: { issue: ApiIssue }) {
             <Badge variant="outline" className={statusColor(issue.status)}>
               {issue.status}
             </Badge>
-            <Badge
-              variant="outline"
-              className={categoryStyle}
-            >
+            <Badge variant="outline" className={categoryStyle}>
               {issue.category}
             </Badge>
           </div>
