@@ -25,6 +25,7 @@ interface AdminUser {
   roles: string[];
   emailVerified: boolean;
   createdAt: string;
+  assignedNeighborhood?: string | null;
 }
 
 interface AssignableRole {
@@ -35,11 +36,12 @@ interface AssignableRole {
 export function AdminUsers() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [roles, setRoles] = useState<AssignableRole[]>([]);
-  const [selectedRoles, setSelectedRoles] = useState<Record<string, string>>(
-    {},
-  );
+  const [neighborhoods, setNeighborhoods] = useState<string[]>([]);
+  const [selectedRoles, setSelectedRoles] = useState<Record<string, string>>({});
+  const [selectedNeighborhoods, setSelectedNeighborhoods] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
+  const [assigningNeighborhood, setAssigningNeighborhood] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,20 +50,26 @@ export function AdminUsers() {
     setError(null);
 
     try {
-      const [usersResponse, rolesResponse] = await Promise.all([
+      const [usersResponse, rolesResponse, neighborhoodsResponse] = await Promise.all([
         apiClient.get<{ data: AdminUser[] }>("/admin/users"),
         apiClient.get<{ data: AssignableRole[] }>("/admin/roles"),
+        apiClient.get<{ data: { id: string; name: string }[] }>("/admin/neighborhoods"),
       ]);
 
       setUsers(usersResponse.data.data);
       setRoles(rolesResponse.data.data);
+      setNeighborhoods(neighborhoodsResponse.data.data.map((n) => n.name));
 
       const initialRoles: Record<string, string> = {};
+      const initialNeighborhoods: Record<string, string> = {};
       for (const user of usersResponse.data.data) {
         initialRoles[user.id] = user.role;
+        initialNeighborhoods[user.id] = user.assignedNeighborhood ?? "";
       }
       setSelectedRoles(initialRoles);
-    } catch {
+      setSelectedNeighborhoods(initialNeighborhoods);
+    } catch (err) {
+      console.error("AdminUsers loadData error:", err);
       setError("Failed to load admin users.");
     } finally {
       setIsLoading(false);
@@ -74,7 +82,6 @@ export function AdminUsers() {
 
   async function updateRole(userId: string) {
     const role = selectedRoles[userId];
-
     if (!role) return;
 
     try {
@@ -90,6 +97,22 @@ export function AdminUsers() {
       setError("Failed to update user role. Check your permissions.");
     } finally {
       setUpdatingUserId(null);
+    }
+  }
+
+  async function assignNeighborhood(userId: string) {
+    const neighborhood = selectedNeighborhoods[userId] || null;
+    try {
+      setAssigningNeighborhood(userId);
+      setSuccess(null);
+      setError(null);
+      await apiClient.patch(`/admin/users/${userId}/neighborhood`, { neighborhood });
+      setSuccess("Neighborhood assigned successfully.");
+      setTimeout(() => setSuccess(null), 3000);
+    } catch {
+      setError("Failed to assign neighborhood.");
+    } finally {
+      setAssigningNeighborhood(null);
     }
   }
 
@@ -118,8 +141,7 @@ export function AdminUsers() {
               <CardTitle>Users</CardTitle>
             </div>
             <CardDescription>
-              Platform admins can manage admins, workers, and residents. Admins
-              can manage workers and residents only.
+              Platform admins can manage all roles. Admins can manage authority representatives and residents only.
             </CardDescription>
           </CardHeader>
 
@@ -150,60 +172,104 @@ export function AdminUsers() {
                     const isPlatformAdmin = user.role === "platform_admin";
                     const selectedRole = selectedRoles[user.id] ?? user.role;
                     const isUpdating = updatingUserId === user.id;
+                    const isModerator = selectedRole === "moderator" || user.role === "moderator";
 
                     return (
                       <div
                         key={user.id}
-                        className="flex flex-col gap-4 rounded-xl border border-border/60 p-4 md:flex-row md:items-center md:justify-between"
+                        className="flex flex-col gap-4 rounded-xl border border-border/60 p-4"
                       >
-                        <div className="min-w-0">
-                          <p className="font-medium text-foreground">
-                            {user.name}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {user.email}
-                          </p>
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            Current role:{" "}
-                            <span className="font-medium">{user.role}</span>
-                          </p>
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                          <div className="min-w-0">
+                            <p className="font-medium text-foreground">
+                              {user.name}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {user.email}
+                            </p>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              Current role:{" "}
+                              <span className="font-medium">{user.role}</span>
+                              {user.assignedNeighborhood && (
+                                <span className="ml-2 text-accent">
+                                  · {user.assignedNeighborhood}
+                                </span>
+                              )}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                            <Select
+                              value={selectedRole}
+                              onValueChange={(value) =>
+                                setSelectedRoles((current) => ({
+                                  ...current,
+                                  [user.id]: value,
+                                }))
+                              }
+                              disabled={isPlatformAdmin}
+                            >
+                              <SelectTrigger className="w-56">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {roles.map((role) => (
+                                  <SelectItem key={role.value} value={role.value}>
+                                    {role.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+
+                            <Button
+                              type="button"
+                              disabled={
+                                isPlatformAdmin ||
+                                isUpdating ||
+                                selectedRole === user.role
+                              }
+                              onClick={() => updateRole(user.id)}
+                            >
+                              {isUpdating ? "Updating..." : "Update"}
+                            </Button>
+                          </div>
                         </div>
 
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                          <Select
-                            value={selectedRole}
-                            onValueChange={(value) =>
-                              setSelectedRoles((current) => ({
-                                ...current,
-                                [user.id]: value,
-                              }))
-                            }
-                            disabled={isPlatformAdmin}
-                          >
-                            <SelectTrigger className="w-56">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {roles.map((role) => (
-                                <SelectItem key={role.value} value={role.value}>
-                                  {role.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-
-                          <Button
-                            type="button"
-                            disabled={
-                              isPlatformAdmin ||
-                              isUpdating ||
-                              selectedRole === user.role
-                            }
-                            onClick={() => updateRole(user.id)}
-                          >
-                            {isUpdating ? "Updating..." : "Update"}
-                          </Button>
-                        </div>
+                        {/* Neighborhood assignment — only for moderators */}
+                        {isModerator && (
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center border-t border-border/40 pt-3">
+                            <p className="text-xs text-muted-foreground w-32 shrink-0">
+                              Assigned area:
+                            </p>
+                            <Select
+                              value={selectedNeighborhoods[user.id] ?? ""}
+                              onValueChange={(value) =>
+                                setSelectedNeighborhoods((current) => ({
+                                  ...current,
+                                  [user.id]: value,
+                                }))
+                              }
+                            >
+                              <SelectTrigger className="w-56">
+                                <SelectValue placeholder="All neighborhoods" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="">All neighborhoods</SelectItem>
+                                {neighborhoods.map((n) => (
+                                  <SelectItem key={n} value={n}>{n}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              disabled={assigningNeighborhood === user.id}
+                              onClick={() => assignNeighborhood(user.id)}
+                            >
+                              {assigningNeighborhood === user.id ? "Saving..." : "Save"}
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     );
                   })}

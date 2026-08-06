@@ -13,6 +13,7 @@ interface AuthUser {
   name: string;
   role: string;
   roles: string[];
+  assignedNeighborhood?: string | null;
 }
 
 interface AuthContextValue {
@@ -29,7 +30,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Restore session on mount — access token cookie is sent automatically
   useEffect(() => {
     apiClient
       .get<{ data: AuthUser }>("/auth/me")
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
-      {children}
+      {isLoading ? null : children}
     </AuthContext.Provider>
   );
 }

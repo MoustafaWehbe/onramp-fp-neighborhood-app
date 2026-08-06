@@ -44,7 +44,7 @@ export const adminController = {
   async getAssignableRoles(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       if (!req.user) {
@@ -77,30 +77,53 @@ export const adminController = {
     }
   },
 
-  async deleteNeighborhood(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const id = req.params.id as string;
-    await adminService.deleteNeighborhood(id);
-    res.status(200).json({ data: { message: "Neighborhood deleted" } });
-  } catch (err) {
-    next(err);
-  }
-},
+  async assignNeighborhood(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const id = req.params.id as string;
+      const { neighborhood } = req.body;
+      await adminService.assignNeighborhoodToWorker(id, neighborhood ?? null);
+      res.status(200).json({ data: { message: "Neighborhood assigned" } });
+    } catch (err) {
+      next(err);
+    }
+  },
 
-async deleteCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-   const id = req.params.id as string;
-    await adminService.deleteCategory(id);
-    res.status(200).json({ data: { message: "Category deleted" } });
-  } catch (err) {
-    next(err);
-  }
-},
+  async deleteNeighborhood(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const id = req.params.id as string;
+      await adminService.deleteNeighborhood(id);
+      res.status(200).json({ data: { message: "Neighborhood deleted" } });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  async deleteCategory(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
+    try {
+      const id = req.params.id as string;
+      await adminService.deleteCategory(id);
+      res.status(200).json({ data: { message: "Category deleted" } });
+    } catch (err) {
+      next(err);
+    }
+  },
 
   async updateUserRole(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       if (!req.user) {
@@ -181,7 +204,7 @@ async deleteCategory(req: Request, res: Response, next: NextFunction): Promise<v
   async getUsers(
     _req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const users = await adminService.getUsers();
@@ -194,7 +217,7 @@ async deleteCategory(req: Request, res: Response, next: NextFunction): Promise<v
   async getNeighborhoods(
     _req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const neighborhoods = await adminService.getNeighborhoods();
@@ -207,7 +230,7 @@ async deleteCategory(req: Request, res: Response, next: NextFunction): Promise<v
   async createNeighborhood(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const neighborhood = await adminService.createNeighborhood(req.body);
@@ -224,7 +247,7 @@ async deleteCategory(req: Request, res: Response, next: NextFunction): Promise<v
   async getCategories(
     _req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const categories = await adminService.getCategories();
@@ -237,7 +260,7 @@ async deleteCategory(req: Request, res: Response, next: NextFunction): Promise<v
   async createCategory(
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ): Promise<void> {
     try {
       const category = await adminService.createCategory(req.body);
