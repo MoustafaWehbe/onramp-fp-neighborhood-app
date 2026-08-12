@@ -1,6 +1,6 @@
 import { Op } from "sequelize";
-import { Comment, Issue } from "@starter-kit/shared";
-import { ProgressLog } from "@starter-kit/shared";
+import { Comment, Issue, ProgressLog, User } from "@starter-kit/shared";
+
 import { chatCompletion, generateEmbedding } from "../lib/ai";
 import { embeddingsQueue } from "@starter-kit/shared";
 export const VALID_STATUSES = [
@@ -75,14 +75,12 @@ export const issuesService = {
   },
 
   async getById(id: string) {
-    const issue = await Issue.findByPk(id, {
-      //find by primary key
+    return Issue.findByPk(id, {
       include: [
-  { model: ProgressLog, as: "progressLogs" },
-  { model: Comment, as: "comments", attributes: ["id"] },
-], 
+        { model: ProgressLog, as: "progressLogs" },
+        { model: User, as: "reporter", attributes: ["id", "name"] },
+      ],
     });
-    return issue;
   },
 
   async create(data: {
@@ -103,6 +101,7 @@ export const issuesService = {
       reportedById: data.reportedById,
       aiRoutingNote: data.aiRoutingNote,
       status: "Reported",
+      upvotes: 0,
     });
     // queue embedding generation via BullMQ
     if (embeddingsQueue) {
@@ -178,20 +177,29 @@ export const issuesService = {
     });
   },
 
+  async upvote(issueId: string) {
+    const issue = await Issue.findByPk(issueId);
+    if (!issue) throw new Error("Issue not found");
+    issue.upvotes = (issue.upvotes ?? 0) + 1;
+    await issue.save();
+    return { upvotes: issue.upvotes };
+  },
+
   async deleteIssue(issueId: string, userId: string, userRoles: string[]) {
-  const issue = await Issue.findByPk(issueId);
-  if (!issue) throw new Error("Issue not found");
+    const issue = await Issue.findByPk(issueId);
+    if (!issue) throw new Error("Issue not found");
 
-  const isAdmin = userRoles.includes("platform_admin") || userRoles.includes("admin");
-  const isModerator = userRoles.includes("moderator");
-  const isReporter = issue.reportedById === userId;
+    const isAdmin =
+      userRoles.includes("platform_admin") || userRoles.includes("admin");
+    const isModerator = userRoles.includes("moderator");
+    const isReporter = issue.reportedById === userId;
 
-  if (!isAdmin && !isModerator && !isReporter) {
-    throw new Error("Not authorized to delete this issue");
-  }
+    if (!isAdmin && !isModerator && !isReporter) {
+      throw new Error("Not authorized to delete this issue");
+    }
 
-  await issue.destroy();
-},
+    await issue.destroy();
+  },
 
   async categorize(description: string, categories: string[]) {
     const prompt = `You are a municipal issue classifier for a community platform.

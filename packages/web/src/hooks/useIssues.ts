@@ -20,6 +20,8 @@ export interface ApiIssue {
     createdAt: string;
   }[];
   comments?: { id: string }[];
+  upvotes?: number;
+  reporterName?: string;
 }
 
 interface UseIssuesFilters {
