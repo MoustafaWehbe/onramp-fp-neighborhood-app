@@ -28,23 +28,25 @@ function TopBar() {
   const pathname = location.pathname;
 
   const title =
-  pathname === "/" || pathname === "/dashboard"
-    ? "Community Feed"
-    : pathname === "/report-issue"
-      ? "Report an Issue"
-      : pathname === "/my-reports"
-        ? "My Reports"
-        : pathname === "/worker-workspace"
-          ? "Authority Workspace"
-          : pathname === "/settings"
-            ? "Settings"
-            : pathname === "/admin"
-              ? "Admin Console"
-              : pathname === "/admin/users"
-                ? "User Management"
-                : pathname.startsWith("/issue/")
-                  ? "Issue Details"
-                  : "CivicWave";
+    pathname === "/" || pathname === "/dashboard"
+      ? "Community Feed"
+      : pathname === "/report-issue"
+        ? "Report an Issue"
+        : pathname === "/my-reports"
+          ? "My Reports"
+          : pathname === "/worker-workspace"
+            ? "Authority Workspace"
+            : pathname === "/work-queue"
+              ? "Work Queue"
+              : pathname === "/settings"
+                ? "Settings"
+                : pathname === "/admin"
+                  ? "Admin Console"
+                  : pathname === "/admin/users"
+                    ? "User Management"
+                    : pathname.startsWith("/issue/")
+                      ? "Issue Details"
+                      : "CivicWave";
 
   return (
     <header className="sticky top-0 z-20 flex h-14 items-center gap-3 border-b border-border/80 bg-background/80 px-4 backdrop-blur">

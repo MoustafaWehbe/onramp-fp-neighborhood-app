@@ -7,7 +7,7 @@ import { useIssues } from "../../hooks/useIssues";
 import { apiClient } from "@/lib/api-client";
 import { Search, MapPin, ClipboardList } from "lucide-react";
 
-export function WorkerWorkspace() {
+export function AuthorityWorkspace() {
   const [neighborhood, setNeighborhood] = useState<string | null | undefined>(undefined);
   const [search, setSearch] = useState("");
 
