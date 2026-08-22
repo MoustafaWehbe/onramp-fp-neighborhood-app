@@ -1,21 +1,13 @@
-import { getAIClient } from "./client";
+import { mistralGenerateEmbedding, mistralGenerateEmbeddings } from "./mistral-client";
 
+// Embeddings now run through Mistral (mistral-embed, 1024 dimensions)
+// instead of OpenAI. Callers are unchanged — only the provider moved.
 export async function generateEmbedding(text: string): Promise<number[]> {
-  const client = getAIClient();
-  const response = await client.embeddings.create({
-    model: "text-embedding-3-small",
-    input: text,
-  });
-  return response.data[0]?.embedding ?? [];
+  return mistralGenerateEmbedding(text);
 }
 
 export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
-  const client = getAIClient();
-  const response = await client.embeddings.create({
-    model: "text-embedding-3-small",
-    input: texts,
-  });
-  return response.data.map((d) => d.embedding);
+  return mistralGenerateEmbeddings(texts);
 }
 
 export function cosineSimilarity(a: number[], b: number[]): number {

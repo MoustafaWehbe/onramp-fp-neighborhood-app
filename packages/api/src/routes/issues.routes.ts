@@ -13,6 +13,10 @@ router.get("/", issuesController.getAll);
 
 router.post("/ai-categorize", issuesController.categorize);
 
+// GET /api/issues/search?q= — semantic search via pgvector cosine distance.
+// Must be registered before /:id so "search" isn't captured as an id.
+router.get("/search", issuesController.search);
+
 // GET /api/issues/:id — anyone logged in can view one issue
 router.get("/:id", issuesController.getById);
 

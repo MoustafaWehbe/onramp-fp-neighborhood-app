@@ -29,7 +29,7 @@ import {
   X,
 } from "lucide-react";
 import { type Status } from "../../lib/mock-data";
-import { useIssues } from "../../hooks/useIssues";
+import { useIssues, useIssueSearch } from "../../hooks/useIssues";
 import { useNeighborhoods, useCategories } from "../../hooks/useReferenceData";
 import { Badge } from "../../components/ui/badge";
 
@@ -71,13 +71,18 @@ export function Feed() {
     dateTo: dateRange?.to ? toISODate(dateRange.to) : undefined,
   });
 
-  const filtered = issues.filter((issue) => {
-    if (search.trim() === "") return true;
-    return (
-      issue.title.toLowerCase().includes(search.toLowerCase()) ||
-      issue.description.toLowerCase().includes(search.toLowerCase())
-    );
-  });
+  // When there's a search query, use semantic search results (via
+  // /issues/search) instead of the locally-fetched, filter-scoped list.
+  const isSearching = search.trim() !== "";
+  const {
+    results: searchResults,
+    loading: searchLoading,
+    error: searchError,
+  } = useIssueSearch(search);
+
+  const filtered = isSearching ? searchResults : issues;
+  const listLoading = isSearching ? searchLoading : loading;
+  const listError = isSearching ? searchError : error;
 
   const openCount = issues.filter(
     (i) => i.status === "Reported" || i.status === "Acknowledged",
@@ -315,7 +320,7 @@ export function Feed() {
       {/* results */}
       <div className="px-6 py-1">
         <p className="text-xs text-muted-foreground">
-          {loading
+          {listLoading
             ? "Loading..."
             : `${filtered.length} issue${filtered.length !== 1 ? "s" : ""} found`}
         </p>
@@ -323,26 +328,28 @@ export function Feed() {
 
       <div className="flex-1 px-6 pb-6 overflow-y-auto">
         <div className="space-y-4 pt-2">
-          {error && (
-            <p className="text-sm text-red-500 text-center py-8">{error}</p>
+          {listError && (
+            <p className="text-sm text-red-500 text-center py-8">{listError}</p>
           )}
-          {loading && (
+          {listLoading && (
             <p className="text-sm text-muted-foreground text-center py-8">
-              Loading issues...
+              {isSearching ? "Searching..." : "Loading issues..."}
             </p>
           )}
-          {!loading && !error && filtered.length === 0 && (
+          {!listLoading && !listError && filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <p className="text-sm font-medium text-muted-foreground">
                 No issues found
               </p>
               <p className="text-xs text-muted-foreground/60 mt-1">
-                Try adjusting your filters
+                {isSearching
+                  ? "Try a different search"
+                  : "Try adjusting your filters"}
               </p>
             </div>
           )}
-          {!loading &&
-            !error &&
+          {!listLoading &&
+            !listError &&
             filtered.map((issue) => (
               <IssueCard key={issue.id} issue={issue} />
             ))}

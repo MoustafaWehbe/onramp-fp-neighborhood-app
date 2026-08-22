@@ -1,7 +1,8 @@
 import { Op } from "sequelize";
+import { cosineDistance } from "pgvector/sequelize";
 import { Issue } from "@starter-kit/shared";
 import { ProgressLog } from "@starter-kit/shared";
-import {chatCompletion} from "../lib/ai"
+import {chatCompletion, generateEmbedding} from "../lib/ai"
 import {embeddingsQueue} from "@starter-kit/shared"
 export const VALID_STATUSES = [
   "Reported",
@@ -65,6 +66,7 @@ export const issuesService = {
       offset,
       order: [["createdAt", "DESC"]],
       include: [{ model: ProgressLog, as: "progressLogs" }],
+      attributes: { exclude: ["embedding"] },
       distinct: true,
     }); //limit and offset handle pagination — if there are 100 issues and you want page 2 with 20 per page, offset = 20 means "skip the first 20."
 
@@ -75,6 +77,7 @@ export const issuesService = {
     const issue = await Issue.findByPk(id, {
       //find by primary key
       include: [{ model: ProgressLog, as: "progressLogs" }], //It tells Sequelize when you fetch an issue, also fetch all its progress logs in the same query.
+      attributes: { exclude: ["embedding"] },
     });
     return issue;
   },
@@ -145,6 +148,27 @@ export const issuesService = {
 
       return issue;
     });
+  },
+
+  // Semantic search: embeds the query with the same model used to embed
+  // issues (Mistral's mistral-embed, 1024-dim) and orders existing issues
+  // by pgvector cosine distance to that query vector. Issues without an
+  // embedding yet (e.g. the embedding job hasn't run) are excluded.
+  async search(query: string, limit = 20) {
+    const queryEmbedding = await generateEmbedding(query);
+    if (!queryEmbedding.length) {
+      return { issues: [], total: 0 };
+    }
+
+    const issues = await Issue.findAll({
+      where: { embedding: { [Op.not]: null } },
+      order: cosineDistance("embedding", queryEmbedding, Issue.sequelize),
+      limit,
+      include: [{ model: ProgressLog, as: "progressLogs" }],
+      attributes: { exclude: ["embedding"] },
+    });
+
+    return { issues, total: issues.length };
   },
 
   async categorize(description: string, categories: string[]) {
