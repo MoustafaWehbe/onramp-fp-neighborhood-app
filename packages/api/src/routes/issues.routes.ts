@@ -37,5 +37,5 @@ router.post(
   authorize("resident", "moderator", "admin", "platform_admin"),
   commentsController.create,
 );
-
+router.post("/:id/upvote", issuesController.upvote);
 export default router;

@@ -9,12 +9,13 @@ import { Settings } from "../pages/dashboard/Settings";
 import { NotFound } from "../pages/NotFound";
 
 import { ReportIssue } from "../pages/issues/ReportIssue";
-import { WorkerWorkspace } from "../pages/issues/AuthorityWorkspace";
+import { AuthorityWorkspace } from "../pages/issues/AuthorityWorkspace";
 import { Feed } from "../pages/feed/Feed";
 import { MyReports } from "../pages/feed/MyReports";
 import { IssuePage } from "../pages/feed/IssuePage";
 import { AdminUsers } from "@/pages/admin/AdminUsers";
 import { AdminConsole } from "@/pages/admin/AdminConsole";
+import { WorkQueue } from "@/pages/issues/WorkQueue";
 
 export function AppRoutes() {
   return (
@@ -36,7 +37,8 @@ export function AppRoutes() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/report-issue" element={<ReportIssue />} />
           <Route path="/my-reports" element={<MyReports />} />
-          <Route path="/worker-workspace" element={<WorkerWorkspace />} />
+          <Route path="/worker-workspace" element={<AuthorityWorkspace />} />
+          <Route path="/work-queue" element={<WorkQueue />} />
         </Route>
       </Route>
       {/* </Route> */}

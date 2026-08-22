@@ -8,6 +8,7 @@ import {
   Settings,
   LogOut,
   ShieldAlert,
+  ListTodo,
 } from "lucide-react";
 import {
   Sidebar,
@@ -35,12 +36,14 @@ const residentNav = [
 const authorityNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
   { title: "Authority Workspace", url: "/worker-workspace", icon: ClipboardList },
+  { title: "Work Queue", url: "/work-queue", icon: ListTodo },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 const adminNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
   { title: "Authority Workspace", url: "/worker-workspace", icon: ClipboardList },
+  { title: "Work Queue", url: "/work-queue", icon: ListTodo },
   { title: "Admin Console", url: "/admin", icon: ShieldAlert },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
@@ -100,7 +103,7 @@ useEffect(() => {
 
           <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
             <span className="font-display text-base font-semibold text-sidebar-foreground">
-              OnRamp
+              CivicWave
             </span>
             <span className="text-xs text-sidebar-foreground/60">
               Community tracker

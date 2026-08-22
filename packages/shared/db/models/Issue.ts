@@ -13,6 +13,7 @@ export interface IssueAttributes {
   createdAt?: Date;
   updatedAt?: Date;
   embedding?: number[] | null;
+  upvotes: number;
 }
 
 export interface IssueCreationAttributes extends Optional<
@@ -36,6 +37,7 @@ export class Issue
   declare embedding: number[] | null;
   declare readonly createdAt: Date;
   declare readonly updatedAt: Date;
+  declare upvotes: number;
 
   static initModel(sequelize: Sequelize): typeof Issue {
     Issue.init(
@@ -86,6 +88,11 @@ export class Issue
         embedding: {
           type: DataTypes.ARRAY(DataTypes.FLOAT),
           allowNull: true,
+        },
+        upvotes: {
+          type: DataTypes.INTEGER,
+          allowNull: false,
+          defaultValue: 0,
         },
       },
       {

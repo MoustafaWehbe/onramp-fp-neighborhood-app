@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { statusColor, timeAgo } from "@/lib/mock-data";
 import type { ApiIssue } from "@/hooks/useIssues";
+import { useState } from "react";
+import { apiClient } from "@/lib/api-client";
 
 const categoryColors: Record<string, string> = {
   Roads: "bg-orange-50 text-orange-700 border-orange-200",
@@ -23,19 +25,51 @@ const statusDot: Record<string, string> = {
 };
 
 export function IssueCard({ issue }: { issue: ApiIssue }) {
+  const [upvotes, setUpvotes] = useState(issue.upvotes ?? 0);
+  const [upvoted, setUpvoted] = useState(false);
   const categoryStyle =
     categoryColors[issue.category] ?? "bg-muted/70 text-foreground/70";
   const dotColor = statusDot[issue.status] ?? "bg-muted";
-
+  async function handleUpvote(e: React.MouseEvent) {
+    e.preventDefault();
+    if (upvoted) return;
+    try {
+      await apiClient.post(`/issues/${issue.id}/upvote`);
+      setUpvotes((prev) => prev + 1);
+      setUpvoted(true);
+    } catch {
+      // silently fail
+    }
+  }
   return (
     <Card className="group relative overflow-hidden border-border/70 transition-all hover:border-ocean-teal/40 hover:shadow-lift">
       <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-ocean opacity-0 transition-opacity group-hover:opacity-100" />
       <div className="flex gap-4 p-5">
-
-        {/* Status dot — matches badge color */}
-        <div className="flex flex-col items-center pt-2 shrink-0">
-          <div className={`h-2.5 w-2.5 rounded-full ${dotColor}`} />
-        </div>
+        {/* Upvote button */}
+        <button
+          onClick={handleUpvote}
+          disabled={upvoted}
+          className={`flex flex-col items-center justify-center h-14 w-12 rounded-xl border transition-all shrink-0 ${
+            upvoted
+              ? "border-primary/40 bg-primary/10 text-primary"
+              : "border-border bg-muted/40 hover:border-primary/40 hover:bg-primary/10 hover:text-primary"
+          }`}
+        >
+          <svg
+            className="h-4 w-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path
+              d="M12 19V5M5 12l7-7 7 7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span className="text-sm font-semibold mt-0.5">{upvotes}</span>
+        </button>
 
         {/* Main content */}
         <div className="min-w-0 flex-1">
