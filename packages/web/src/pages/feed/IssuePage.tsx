@@ -197,57 +197,102 @@ export function IssuePage() {
         )}
 
         {/* Status Pipeline */}
-<div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
-  <h3 className="font-semibold text-base mb-4">Status Pipeline</h3>
-  <div className="flex items-center gap-0">
-    {(["Reported", "Acknowledged", "In Progress", "Resolved"] as const).map((step, index) => {
-      const statuses = ["Reported", "Acknowledged", "In Progress", "Resolved"];
-      const currentIndex = statuses.indexOf(issue.status);
-      const stepIndex = statuses.indexOf(step);
-      const isCompleted = stepIndex < currentIndex;
-      const isCurrent = stepIndex === currentIndex;
-      const isPending = stepIndex > currentIndex;
+        <div className="rounded-2xl border border-border/60 bg-card p-5 shadow-sm">
+          <h3 className="font-semibold text-base mb-4">Status Pipeline</h3>
+          <div className="flex items-center gap-0">
+            {(
+              ["Reported", "Acknowledged", "In Progress", "Resolved"] as const
+            ).map((step, index) => {
+              const statuses = [
+                "Reported",
+                "Acknowledged",
+                "In Progress",
+                "Resolved",
+              ];
+              const currentIndex = statuses.indexOf(issue.status);
+              const stepIndex = statuses.indexOf(step);
+              const isCompleted = stepIndex < currentIndex;
+              const isCurrent = stepIndex === currentIndex;
+              const isPending = stepIndex > currentIndex;
 
-      return (
-        <div key={step} className="flex items-center flex-1">
-          <div className="flex flex-col items-center flex-1">
-            {/* Circle */}
-            <div className={`h-8 w-8 rounded-full flex items-center justify-center border-2 transition-all ${
-              isCompleted
-                ? "bg-green-500 border-green-500 text-white"
-                : isCurrent
-                ? `border-current ${statusColor(step)} bg-white`
-                : "border-border bg-muted/30 text-muted-foreground/40"
-            }`}>
-              {isCompleted ? (
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              ) : (
-                <div className={`h-2.5 w-2.5 rounded-full ${
-                  isCurrent ? statusColor(step).split(" ")[1] : "bg-muted-foreground/20"
-                }`} />
-              )}
-            </div>
-            {/* Label */}
-            <p className={`text-xs mt-2 font-medium text-center ${
-              isPending ? "text-muted-foreground/40" : "text-foreground"
-            }`}>
-              {step}
-            </p>
+              return (
+                <div key={step} className="flex items-center flex-1">
+                  <div className="flex flex-col items-center flex-1">
+                    {/* Circle */}
+                    <div
+                      className={`h-8 w-8 rounded-full flex items-center justify-center border-2 transition-all ${
+                        isCompleted
+                          ? "bg-green-500 border-green-500 text-white"
+                          : isCurrent && step === "Resolved"
+                            ? "bg-green-500 border-green-500 text-white"
+                            : isCurrent
+                              ? `border-current ${statusColor(step)} bg-white`
+                              : "border-border bg-muted/30 text-muted-foreground/40"
+                      }`}
+                    >
+                      {isCompleted ? (
+                        <svg
+                          className="h-4 w-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                        >
+                          <path
+                            d="M20 6L9 17l-5-5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      ) : isCurrent && step === "Resolved" ? (
+                        <svg
+                          className="h-4 w-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                        >
+                          <path
+                            d="M20 6L9 17l-5-5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      ) : (
+                        <div
+                          className={`h-2.5 w-2.5 rounded-full ${
+                            isCurrent
+                              ? statusColor(step).split(" ")[1]
+                              : "bg-muted-foreground/20"
+                          }`}
+                        />
+                      )}
+                    </div>
+                    {/* Label */}
+                    <p
+                      className={`text-xs mt-2 font-medium text-center ${
+                        isPending
+                          ? "text-muted-foreground/40"
+                          : "text-foreground"
+                      }`}
+                    >
+                      {step}
+                    </p>
+                  </div>
+
+                  {/* Connector line */}
+                  {index < 3 && (
+                    <div
+                      className={`h-0.5 w-full -mt-5 ${
+                        isCompleted ? "bg-green-500" : "bg-border"
+                      }`}
+                    />
+                  )}
+                </div>
+              );
+            })}
           </div>
-
-          {/* Connector line */}
-          {index < 3 && (
-            <div className={`h-0.5 w-full -mt-5 ${
-              isCompleted ? "bg-green-500" : "bg-border"
-            }`} />
-          )}
         </div>
-      );
-    })}
-  </div>
-</div>
 
         {/* Status History */}
         {issue.progressLogs && issue.progressLogs.length > 0 && (
