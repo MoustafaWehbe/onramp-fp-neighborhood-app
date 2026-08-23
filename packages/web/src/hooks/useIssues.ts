@@ -81,6 +81,50 @@ export function useIssues(filters: UseIssuesFilters = {}) {
   return { issues, total, loading, error, refetch: fetchIssues };
 }
 
+// Semantic search — calls GET /issues/search?q=, debounced so we're not
+// hitting the embeddings API on every keystroke.
+export function useIssueSearch(query: string, debounceMs = 350) {
+  const [results, setResults] = useState<ApiIssue[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      setResults([]);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    let ignore = false;
+    setLoading(true);
+
+    const timeout = setTimeout(async () => {
+      try {
+        const res = await apiClient.get("/issues/search", {
+          params: { q: trimmed },
+        });
+        if (!ignore) {
+          setResults(res.data.data.issues);
+          setError(null);
+        }
+      } catch {
+        if (!ignore) setError("Search failed");
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    }, debounceMs);
+
+    return () => {
+      ignore = true;
+      clearTimeout(timeout);
+    };
+  }, [query, debounceMs]);
+
+  return { results, loading, error };
+}
+
 export function useIssue(id: string | undefined) {
   const [issue, setIssue] = useState<ApiIssue | null>(null);
   const [loading, setLoading] = useState(true);

@@ -1,4 +1,10 @@
 import { Sequelize } from "sequelize";
+import * as pgvector from "pgvector/sequelize";
+
+// Teaches Sequelize how to read/write Postgres `vector` columns
+// (adds DataTypes.VECTOR). Must run before any model calling
+// `DataTypes.VECTOR(...)` is initialized.
+pgvector.registerType(Sequelize);
 
 let sequelizeInstance: Sequelize | null = null;
 

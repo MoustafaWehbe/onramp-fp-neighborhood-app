@@ -26,6 +26,20 @@ export const issuesController = {
     }
   },
 
+  async search(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const q = (req.query.q as string | undefined)?.trim();
+      if (!q) {
+        res.status(400).json({ error: "Query parameter 'q' is required" });
+        return;
+      }
+      const result = await issuesService.search(q);
+      res.status(200).json({ data: result });
+    } catch (err) {
+      next(err);
+    }
+  },
+
   async getById(
     req: Request,
     res: Response,

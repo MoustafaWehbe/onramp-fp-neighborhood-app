@@ -29,7 +29,7 @@ import {
   X,
 } from "lucide-react";
 import { type Status } from "../../lib/mock-data";
-import { useIssues, useSearch } from "../../hooks/useIssues";
+import { useIssues, useIssueSearch } from "../../hooks/useIssues";
 import { useNeighborhoods, useCategories } from "../../hooks/useReferenceData";
 import { Badge } from "../../components/ui/badge";
 
@@ -55,9 +55,6 @@ export function Feed() {
   const [activeNeighborhood, setActiveNeighborhood] = useState<string>("All");
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [showFilters, setShowFilters] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-
-  const { results: searchResults, loading: searchLoading, doSearch, clear } = useSearch();
 
   const activeFilterCount = [
     activeNeighborhood !== "All",
@@ -74,16 +71,18 @@ export function Feed() {
     dateTo: dateRange?.to ? toISODate(dateRange.to) : undefined,
   });
 
-  const filtered = issues.filter((issue) => {
-    if (search.trim() === "") return true;
-    return (
-      issue.title.toLowerCase().includes(search.toLowerCase()) ||
-      issue.description.toLowerCase().includes(search.toLowerCase())
-    );
-  });
+  // When there's a search query, use semantic search results (via
+  // /issues/search, debounced) instead of the locally-fetched, filter-scoped list.
+  const isSearching = search.trim() !== "";
+  const {
+    results: searchResults,
+    loading: searchLoading,
+    error: searchError,
+  } = useIssueSearch(search);
 
-  // When searching semantically, show those results; otherwise show filtered
-  const displayIssues =  filtered;
+  const filtered = isSearching ? searchResults : issues;
+  const listLoading = isSearching ? searchLoading : loading;
+  const listError = isSearching ? searchError : error;
 
   const openCount = issues.filter(
     (i) => i.status === "Reported" || i.status === "Acknowledged",
@@ -92,12 +91,6 @@ export function Feed() {
     (i) => i.status === "In Progress",
   ).length;
   const resolvedCount = issues.filter((i) => i.status === "Resolved").length;
-
-  function handleSearchChange(value: string) {
-  setSearch(value);
-  setIsSearching(false);
-  clear();
-}
 
   return (
     <div className="flex flex-col h-full">
@@ -186,7 +179,7 @@ export function Feed() {
             placeholder="Search issues..."
             className="pl-9"
             value={search}
-            onChange={(e) => handleSearchChange(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
         </div>
 
@@ -327,11 +320,7 @@ export function Feed() {
       {/* results count */}
       <div className="px-6 py-1">
         <p className="text-xs text-muted-foreground">
-          {isSearching && searchLoading
-            ? "Searching..."
-            : isSearching
-            ? `${searchResults.length} result${searchResults.length !== 1 ? "s" : ""} found`
-            : loading
+          {listLoading
             ? "Loading..."
             : `${filtered.length} issue${filtered.length !== 1 ? "s" : ""} found`}
         </p>
@@ -339,28 +328,30 @@ export function Feed() {
 
       <div className="flex-1 px-6 pb-6 overflow-y-auto">
         <div className="space-y-4 pt-2">
-          {error && (
-            <p className="text-sm text-red-500 text-center py-8">{error}</p>
+          {listError && (
+            <p className="text-sm text-red-500 text-center py-8">{listError}</p>
           )}
-          {(loading || (isSearching && searchLoading)) && (
+          {listLoading && (
             <p className="text-sm text-muted-foreground text-center py-8">
-              Loading issues...
+              {isSearching ? "Searching..." : "Loading issues..."}
             </p>
           )}
-          {!loading && !searchLoading && !error && displayIssues.length === 0 && (
+          {!listLoading && !listError && filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <p className="text-sm font-medium text-muted-foreground">
                 No issues found
               </p>
               <p className="text-xs text-muted-foreground/60 mt-1">
-                Try adjusting your filters
+                {isSearching
+                  ? "Try a different search"
+                  : "Try adjusting your filters"}
               </p>
             </div>
           )}
-          {!loading &&
-            !error &&
-            displayIssues.map((issue) => (
-              <IssueCard key={issue.id} issue={issue as any} />
+          {!listLoading &&
+            !listError &&
+            filtered.map((issue) => (
+              <IssueCard key={issue.id} issue={issue} />
             ))}
         </div>
       </div>

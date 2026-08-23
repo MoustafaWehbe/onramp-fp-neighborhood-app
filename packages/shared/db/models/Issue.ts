@@ -86,7 +86,14 @@ export class Issue
           allowNull: true,
         },
         embedding: {
-          type: DataTypes.ARRAY(DataTypes.FLOAT),
+          // Backed by a real Postgres `vector(1024)` column (see migration
+          // 20260713000000-add-embedding-to-issues.js). DataTypes.VECTOR is
+          // registered at runtime by pgvector/sequelize (database.config.ts),
+          // but pgvector's .d.ts files don't declare it on Sequelize's own
+          // DataTypes type, hence the cast.
+          type: (DataTypes as unknown as { VECTOR(dim: number): unknown }).VECTOR(
+            1024,
+          ) as typeof DataTypes.FLOAT,
           allowNull: true,
         },
         upvotes: {
