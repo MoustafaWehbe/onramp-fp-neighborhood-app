@@ -21,6 +21,20 @@ router.get(
   adminController.getNeighborhoods
 );
 
+router.delete(
+  "/neighborhoods/:id",
+  authenticate,
+  authorize("admin", "platform_admin"),
+  adminController.deleteNeighborhood
+);
+
+router.delete(
+  "/categories/:id",
+  authenticate,
+  authorize("admin", "platform_admin"),
+  adminController.deleteCategory
+);
+
 router.post(
   "/neighborhoods",
   authenticate,
@@ -64,6 +78,13 @@ router.get(
   authenticate,
   requirePermission("admin:users:read"),
   adminController.getUsers
+);
+
+router.patch(
+  "/users/:id/neighborhood",
+  authenticate,
+  authorize("admin", "platform_admin"),
+  adminController.assignNeighborhood
 );
 
 export { router as adminRouter };

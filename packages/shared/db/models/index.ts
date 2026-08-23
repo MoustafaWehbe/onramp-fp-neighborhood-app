@@ -90,4 +90,6 @@ export function initModels(sequelize: Sequelize): void {
 
   Comment.belongsTo(User, { foreignKey: "authorId", as: "author" });
   User.hasMany(Comment, { foreignKey: "authorId", as: "comments" });
+
+  Issue.belongsTo(User, { foreignKey: "reportedById", as: "reporter" });
 }

@@ -1,9 +1,9 @@
 import { Op } from "sequelize";
 import { cosineDistance } from "pgvector/sequelize";
-import { Issue } from "@starter-kit/shared";
-import { ProgressLog } from "@starter-kit/shared";
-import {chatCompletion, generateEmbedding} from "../lib/ai"
-import {embeddingsQueue} from "@starter-kit/shared"
+import { Comment, Issue, ProgressLog, User } from "@starter-kit/shared";
+
+import { chatCompletion, generateEmbedding } from "../lib/ai";
+import { embeddingsQueue } from "@starter-kit/shared";
 export const VALID_STATUSES = [
   "Reported",
   "Acknowledged",
@@ -65,7 +65,10 @@ export const issuesService = {
       limit,
       offset,
       order: [["createdAt", "DESC"]],
-      include: [{ model: ProgressLog, as: "progressLogs" }],
+      include: [
+        { model: ProgressLog, as: "progressLogs" },
+        { model: Comment, as: "comments", attributes: ["id"] },
+      ],
       attributes: { exclude: ["embedding"] },
       distinct: true,
     }); //limit and offset handle pagination — if there are 100 issues and you want page 2 with 20 per page, offset = 20 means "skip the first 20."
@@ -74,12 +77,14 @@ export const issuesService = {
   },
 
   async getById(id: string) {
-    const issue = await Issue.findByPk(id, {
+    return Issue.findByPk(id, {
       //find by primary key
-      include: [{ model: ProgressLog, as: "progressLogs" }], //It tells Sequelize when you fetch an issue, also fetch all its progress logs in the same query.
+      include: [
+        { model: ProgressLog, as: "progressLogs" }, //It tells Sequelize when you fetch an issue, also fetch all its progress logs in the same query.
+        { model: User, as: "reporter", attributes: ["id", "name"] },
+      ],
       attributes: { exclude: ["embedding"] },
     });
-    return issue;
   },
 
   async create(data: {
@@ -100,6 +105,7 @@ export const issuesService = {
       reportedById: data.reportedById,
       aiRoutingNote: data.aiRoutingNote,
       status: "Reported",
+      upvotes: 0,
     });
     // queue embedding generation via BullMQ
     if (embeddingsQueue) {
@@ -171,8 +177,32 @@ export const issuesService = {
     return { issues, total: issues.length };
   },
 
+  async upvote(issueId: string) {
+    const issue = await Issue.findByPk(issueId);
+    if (!issue) throw new Error("Issue not found");
+    issue.upvotes = (issue.upvotes ?? 0) + 1;
+    await issue.save();
+    return { upvotes: issue.upvotes };
+  },
+
+  async deleteIssue(issueId: string, userId: string, userRoles: string[]) {
+    const issue = await Issue.findByPk(issueId);
+    if (!issue) throw new Error("Issue not found");
+
+    const isAdmin =
+      userRoles.includes("platform_admin") || userRoles.includes("admin");
+    const isModerator = userRoles.includes("moderator");
+    const isReporter = issue.reportedById === userId;
+
+    if (!isAdmin && !isModerator && !isReporter) {
+      throw new Error("Not authorized to delete this issue");
+    }
+
+    await issue.destroy();
+  },
+
   async categorize(description: string, categories: string[]) {
-  const prompt = `You are a municipal issue classifier for a community platform.
+    const prompt = `You are a municipal issue classifier for a community platform.
 A resident has submitted the following issue description:
 
 "${description}"
@@ -187,22 +217,20 @@ Return ONLY a valid JSON object with exactly these two fields:
 
 Do not include any explanation, markdown, or extra text. JSON only.`;
 
-  const response = await chatCompletion([
-    { role: "user", content: prompt }
-  ]);
+    const response = await chatCompletion([{ role: "user", content: prompt }]);
 
-  try {
-    const parsed = JSON.parse(response);
-    return {
-      suggestedCategory: parsed.suggestedCategory,
-      routingNote: parsed.routingNote,
-    };
-  } catch {
-    return {
-      suggestedCategory: categories[0],
-      routingNote: "This issue has been routed to the appropriate department.",
-    };
-  }
-},
+    try {
+      const parsed = JSON.parse(response);
+      return {
+        suggestedCategory: parsed.suggestedCategory,
+        routingNote: parsed.routingNote,
+      };
+    } catch {
+      return {
+        suggestedCategory: categories[0],
+        routingNote:
+          "This issue has been routed to the appropriate department.",
+      };
+    }
+  },
 };
-

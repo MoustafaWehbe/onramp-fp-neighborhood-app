@@ -23,7 +23,7 @@ function getPrimaryRole(roles: string[]): string {
 export const adminService = {
   async getUsers() {
     const users = await User.findAll({
-      attributes: ["id", "email", "name", "emailVerified", "createdAt"],
+      attributes: ["id", "email", "name", "emailVerified", "createdAt", "assignedNeighborhood"],
       include: [{ model: Role, as: "roles" }],
       order: [["createdAt", "DESC"]],
     });
@@ -39,6 +39,7 @@ export const adminService = {
         createdAt: user.createdAt,
         role: getPrimaryRole(roles),
         roles,
+        assignedNeighborhood: user.assignedNeighborhood ?? null,
       };
     });
   },
@@ -60,6 +61,27 @@ export const adminService = {
       slug,
       city: data.city || "Unspecified",
     });
+  },
+
+  async assignNeighborhoodToWorker(
+    userId: string,
+    neighborhood: string | null,
+  ) {
+    const { User } = await import("@starter-kit/shared");
+    await User.update(
+      { assignedNeighborhood: neighborhood },
+      { where: { id: userId } },
+    );
+  },
+
+  async deleteNeighborhood(id: string) {
+    const { Neighborhood } = await import("@starter-kit/shared");
+    await Neighborhood.destroy({ where: { id } });
+  },
+
+  async deleteCategory(id: string) {
+    const { Category } = await import("@starter-kit/shared");
+    await Category.destroy({ where: { id } });
   },
 
   async getCategories() {

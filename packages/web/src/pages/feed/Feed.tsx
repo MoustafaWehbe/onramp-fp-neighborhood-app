@@ -72,7 +72,7 @@ export function Feed() {
   });
 
   // When there's a search query, use semantic search results (via
-  // /issues/search) instead of the locally-fetched, filter-scoped list.
+  // /issues/search, debounced) instead of the locally-fetched, filter-scoped list.
   const isSearching = search.trim() !== "";
   const {
     results: searchResults,
@@ -202,7 +202,7 @@ export function Feed() {
         </Button>
       </div>
 
-      {/* filter panel — toggled open/closed, independent of the search bar */}
+      {/* filter panel */}
       {showFilters && (
         <div className="px-6 pb-3 flex items-center gap-3 flex-wrap">
           <Select
@@ -317,7 +317,7 @@ export function Feed() {
         </div>
       )}
 
-      {/* results */}
+      {/* results count */}
       <div className="px-6 py-1">
         <p className="text-xs text-muted-foreground">
           {listLoading

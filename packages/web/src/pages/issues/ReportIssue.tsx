@@ -34,7 +34,7 @@ export function ReportIssue() {
   async function handleAnalyze() {
     if (!description.trim()) return;
     setAnalyzing(true);
-    setAiConfirmed(false); // ← add this line
+    setAiConfirmed(false);
     try {
       const res = await apiClient.post("/issues/ai-categorize", {
         description,
@@ -176,36 +176,48 @@ export function ReportIssue() {
               </Button>
             </div>
 
-            {/* Confirm/Override step — only shown after AI suggests */}
-            {aiNote && !aiConfirmed && (
-              <div className="flex items-center gap-3 pt-1 border-t border-border/40">
-                <p className="text-xs text-muted-foreground flex-1">
-                  AI suggested:{" "}
-                  <span className="font-semibold text-foreground">
-                    {category}
-                  </span>
+            {aiNote && (
+              <div
+                className={`rounded-xl border p-4 flex items-center justify-between ${aiConfirmed ? "border-green-200 bg-green-50" : "border-teal-200 bg-teal-50"}`}
+              >
+                <p
+                  className={`text-sm ${aiConfirmed ? "text-green-800" : "text-teal-800"}`}
+                >
+                  {aiConfirmed ? (
+                    <>
+                      <strong>✓ Confirmed:</strong> {category} — {aiNote}
+                    </>
+                  ) : (
+                    <>
+                      AI suggests: <strong>{category}</strong> — {aiNote}
+                    </>
+                  )}
                 </p>
-                <Button
-                  type="button"
-                  size="sm"
-                  className="rounded-lg px-4"
-                  onClick={() => setAiConfirmed(true)}
-                >
-                  Confirm
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="rounded-lg px-4"
-                  onClick={() => {
-                    setAiConfirmed(false);
-                    setAiNote(null);
-                    setCategory("");
-                  }}
-                >
-                  Change
-                </Button>
+                {!aiConfirmed && (
+                  <div className="flex gap-2 shrink-0">
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="rounded-lg"
+                      onClick={() => setAiConfirmed(true)}
+                    >
+                      Confirm
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="rounded-lg"
+                      onClick={() => {
+                        setAiNote(null);
+                        setCategory("");
+                        setAiConfirmed(false);
+                      }}
+                    >
+                      Change
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
 

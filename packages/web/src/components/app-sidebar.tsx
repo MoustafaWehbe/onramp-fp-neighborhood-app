@@ -8,6 +8,7 @@ import {
   Settings,
   LogOut,
   ShieldAlert,
+  ListTodo,
 } from "lucide-react";
 import {
   Sidebar,
@@ -22,6 +23,8 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/hooks/useAuth";
+import { useEffect, useState } from "react";
+import { apiClient } from "@/lib/api-client";
 
 const residentNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
@@ -32,13 +35,15 @@ const residentNav = [
 
 const authorityNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
-  { title: "Worker Workspace", url: "/worker-workspace", icon: ClipboardList },
+  { title: "Authority Workspace", url: "/worker-workspace", icon: ClipboardList },
+  { title: "Work Queue", url: "/work-queue", icon: ListTodo },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
 const adminNav = [
   { title: "Community Feed", url: "/", icon: LayoutDashboard },
-  { title: "Worker Workspace", url: "/worker-workspace", icon: ClipboardList },
+  { title: "Authority Workspace", url: "/worker-workspace", icon: ClipboardList },
+  { title: "Work Queue", url: "/work-queue", icon: ListTodo },
   { title: "Admin Console", url: "/admin", icon: ShieldAlert },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
@@ -63,6 +68,15 @@ function formatRole(role?: string) {
 export function AppSidebar() {
   const { user, logout } = useAuth();
   const { pathname } = useLocation();
+  const [assignedNeighborhood, setAssignedNeighborhood] = useState<string | null>(null);
+
+useEffect(() => {
+  if (user) {
+    apiClient.get("/auth/me").then((res) => {
+      setAssignedNeighborhood(res.data.data.assignedNeighborhood ?? null);
+    }).catch(() => {});
+  }
+}, [user?.id]);
 
   const role = user?.roles?.includes("platform_admin")
     ? "platform_admin"
@@ -126,7 +140,7 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <div className="flex items-center gap-2 px-2 py-1.5 text-sm text-sidebar-foreground/80 group-data-[collapsible=icon]:hidden">
               <MapPin className="h-4 w-4 text-sidebar-primary" />
-              <span>All neighborhoods</span>
+              <span>{assignedNeighborhood ?? "All neighborhoods"}</span>
             </div>
           </SidebarGroupContent>
         </SidebarGroup>

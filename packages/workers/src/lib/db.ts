@@ -8,7 +8,7 @@ export function getDatabase(): Sequelize {
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error("DATABASE_URL is required");
 
-    sequelize = new Sequelize(url, {
+    sequelize = new Sequelize(url, { 
       dialect: "postgres",
       logging: false,
       define: { timestamps: true, underscored: true },
