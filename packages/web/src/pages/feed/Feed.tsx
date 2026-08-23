@@ -76,6 +76,7 @@ export function Feed() {
   const isSearching = search.trim() !== "";
   const {
     results: searchResults,
+    suggestions: searchSuggestions,
     loading: searchLoading,
     error: searchError,
   } = useIssueSearch(search);
@@ -322,6 +323,8 @@ export function Feed() {
         <p className="text-xs text-muted-foreground">
           {listLoading
             ? "Loading..."
+            : isSearching && filtered.length === 0 && searchSuggestions.length > 0
+            ? "No related search"
             : `${filtered.length} issue${filtered.length !== 1 ? "s" : ""} found`}
         </p>
       </div>
@@ -336,20 +339,52 @@ export function Feed() {
               {isSearching ? "Searching..." : "Loading issues..."}
             </p>
           )}
-          {!listLoading && !listError && filtered.length === 0 && (
+          {!listLoading &&
+            !listError &&
+            isSearching &&
+            filtered.length === 0 &&
+            searchSuggestions.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <p className="text-sm font-medium text-muted-foreground">
+                  No issues found
+                </p>
+                <p className="text-xs text-muted-foreground/60 mt-1">
+                  Try a different search
+                </p>
+              </div>
+            )}
+          {!listLoading && !listError && !isSearching && filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <p className="text-sm font-medium text-muted-foreground">
                 No issues found
               </p>
               <p className="text-xs text-muted-foreground/60 mt-1">
-                {isSearching
-                  ? "Try a different search"
-                  : "Try adjusting your filters"}
+                Try adjusting your filters
               </p>
             </div>
           )}
           {!listLoading &&
             !listError &&
+            isSearching &&
+            filtered.length === 0 &&
+            searchSuggestions.length > 0 && (
+              <div className="space-y-4">
+                <div className="text-center py-4">
+                  <p className="text-sm font-medium text-muted-foreground">
+                    No related search
+                  </p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">
+                    You might find these issues relevant instead
+                  </p>
+                </div>
+                {searchSuggestions.map((issue) => (
+                  <IssueCard key={issue.id} issue={issue} />
+                ))}
+              </div>
+            )}
+          {!listLoading &&
+            !listError &&
+            filtered.length > 0 &&
             filtered.map((issue) => (
               <IssueCard key={issue.id} issue={issue} />
             ))}
