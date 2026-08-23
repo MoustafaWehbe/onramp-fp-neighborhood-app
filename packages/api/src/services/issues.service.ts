@@ -160,21 +160,65 @@ export const issuesService = {
   // issues (Mistral's mistral-embed, 1024-dim) and orders existing issues
   // by pgvector cosine distance to that query vector. Issues without an
   // embedding yet (e.g. the embedding job hasn't run) are excluded.
-  async search(query: string, limit = 20) {
+  // maxDistance is a pgvector cosine-distance cutoff (0 = identical,
+  // larger = less related). 0.6 is a starting point, not a scientifically
+  // tuned value — if real testing shows genuinely related issues getting
+  // excluded, raise it; if unrelated issues still slip through, lower it.
+  async search(query: string, limit = 20, maxDistance = 0.35) {
     const queryEmbedding = await generateEmbedding(query);
     if (!queryEmbedding.length) {
       return { issues: [], total: 0 };
     }
 
+    const vectorLiteral = `[${queryEmbedding.join(",")}]`;
+
+    // Note: `embedding` must stay in the selected attributes here (not
+    // excluded) because this query also has a `limit` + a hasMany
+    // `include` (progressLogs), which makes Sequelize wrap the query in
+    // an inner+outer subquery to keep pagination correct across the
+    // join. The outer query re-applies this same ORDER BY, so if
+    // `embedding` were excluded from attributes, Postgres would fail
+    // with "column does not exist" at the outer level even though the
+    // column exists on the table. We strip it from the response below
+    // instead, once Sequelize is done with it.
     const issues = await Issue.findAll({
-      where: { embedding: { [Op.not]: null } },
+      where: {
+        embedding: { [Op.not]: null },
+        [Op.and]: [
+          Issue.sequelize!.literal(
+            `"embedding" <=> '${vectorLiteral}'::vector < ${maxDistance}`,
+          ),
+        ],
+      },
       order: cosineDistance("embedding", queryEmbedding, Issue.sequelize),
       limit,
       include: [{ model: ProgressLog, as: "progressLogs" }],
-      attributes: { exclude: ["embedding"] },
     });
 
-    return { issues, total: issues.length };
+    const sanitize = (rows: Issue[]) =>
+      rows.map((issue) => {
+        const plain = issue.toJSON() as Record<string, unknown>;
+        delete plain.embedding;
+        return plain;
+      });
+
+    if (issues.length > 0) {
+      return { issues: sanitize(issues), total: issues.length, suggestions: [] };
+    }
+
+    // Nothing cleared the relevance threshold. Rather than a dead-end empty
+    // state, surface a few of the closest issues anyway (ignoring the
+    // threshold) so the resident has *something* to look at instead of
+    // "0 results, try something else". These are explicitly NOT claimed to
+    // match the query — the frontend labels them as suggestions.
+    const suggestions = await Issue.findAll({
+      where: { embedding: { [Op.not]: null } },
+      order: cosineDistance("embedding", queryEmbedding, Issue.sequelize),
+      limit: 4,
+      include: [{ model: ProgressLog, as: "progressLogs" }],
+    });
+
+    return { issues: [], total: 0, suggestions: sanitize(suggestions) };
   },
 
   async upvote(issueId: string) {

@@ -85,6 +85,9 @@ export function useIssues(filters: UseIssuesFilters = {}) {
 // hitting the embeddings API on every keystroke.
 export function useIssueSearch(query: string, debounceMs = 350) {
   const [results, setResults] = useState<ApiIssue[]>([]);
+  // Populated only when `results` comes back empty — the closest issues
+  // to the query even though none cleared the relevance threshold.
+  const [suggestions, setSuggestions] = useState<ApiIssue[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -92,6 +95,7 @@ export function useIssueSearch(query: string, debounceMs = 350) {
     const trimmed = query.trim();
     if (!trimmed) {
       setResults([]);
+      setSuggestions([]);
       setLoading(false);
       setError(null);
       return;
@@ -107,10 +111,14 @@ export function useIssueSearch(query: string, debounceMs = 350) {
         });
         if (!ignore) {
           setResults(res.data.data.issues);
+          setSuggestions(res.data.data.suggestions ?? []);
           setError(null);
         }
       } catch {
-        if (!ignore) setError("Search failed");
+        if (!ignore) {
+          setError("Search failed");
+          setSuggestions([]);
+        }
       } finally {
         if (!ignore) setLoading(false);
       }
@@ -122,7 +130,7 @@ export function useIssueSearch(query: string, debounceMs = 350) {
     };
   }, [query, debounceMs]);
 
-  return { results, loading, error };
+  return { results, suggestions, loading, error };
 }
 
 export function useIssue(id: string | undefined) {
